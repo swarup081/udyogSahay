@@ -57,7 +57,7 @@ export default function StepTwo() {
               value={storeName}
               onChange={(e) => setStoreName(e.target.value)}
               placeholder="e.g., Kensho Store"
-              className="w-full py-3 px-4 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              className="w-full py-3 px-4 text-lg border-2 border-gray-300 rounded-full focus:ring-2 focus:ring-white focus:border-blue-300 outline-none transition"
             />
           </div>
         </div>
@@ -68,8 +68,8 @@ export default function StepTwo() {
           </Link>
           <Link href="/get-started/2">
             <button
-              className="px-8 py-3 bg-blue-600 text-white font-semibold text-lg rounded-md hover:bg-blue-700 disabled:bg-gray-300 transition-colors"
-              disabled={!storeName}
+                            className="px-8 py-3 bg-blue-500 text-white font-semibold text-lg rounded-full hover:bg-blue-600 disabled:bg-gray-300 transition-colors"
+                            disabled={!storeName}
             >
               Continue
             </button>

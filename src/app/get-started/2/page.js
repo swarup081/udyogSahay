@@ -28,8 +28,8 @@ const ChoiceChip = ({ id, label, isSelected, onChange }) => (
     htmlFor={id}
     className={`flex items-center justify-center px-5 py-3 border-2 rounded-full cursor-pointer transition-all duration-200 ${
       isSelected
-        ? 'border-blue-600 bg-blue-50 text-blue-700 font-semibold'
-        : 'border-gray-300 bg-white hover:border-blue-500 hover:text-blue-600'
+        ? 'border-blue-300 bg-blue-50 text-blue-400 font-semibold'
+        : 'border-gray-300 bg-white hover:border-blue-300 hover:text-blue-400'
     }`}
   >
     <span>{label}</span>
@@ -105,8 +105,8 @@ export default function StepThree() {
           </Link>
           <Link href="/get-started/3"> {/* We will create step 3 next */}
             <button
-              className="px-8 py-3 bg-blue-600 text-white font-semibold text-lg rounded-md hover:bg-blue-700 disabled:bg-gray-300 transition-colors"
-              disabled={!hasSelection}
+                            className="px-8 py-3 bg-blue-500 text-white font-semibold text-lg rounded-full hover:bg-blue-600 disabled:bg-gray-300 transition-colors"
+                            disabled={!hasSelection}
             >
               Continue
             </button>

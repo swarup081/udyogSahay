@@ -121,8 +121,8 @@ export default function StepThree() {
           </Link>
           <Link href="/templates">
             <button
-              className="px-8 py-3 bg-blue-600 text-white font-semibold text-lg rounded-md hover:bg-blue-700 transition-colors"
-            >
+                            className="px-8 py-3 bg-blue-500 text-white font-semibold text-lg rounded-full hover:bg-blue-600 disabled:bg-gray-300 transition-colors"
+                            >
               Finish
             </button>
           </Link>
