@@ -36,9 +36,12 @@ export default function StepOne() {
                             placeholder="Search for your business or site type"
                             className="w-full py-4 pl-6 pr-40 text-lg rounded-full shadow-sm bg-gray-50 text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-300 transition-all duration-300 outline-none"
                         />
+                        <Link href="/get-started/1">
+
                         <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-600 transition-colors text-base font-semibold">
                             Continue
                         </button>
+                        </Link>
                     </div>
                     <p className="text-sm font-medium text-gray-500 mb-4 tracking-wider">EXAMPLES</p>
                     <ul className="space-y-3">

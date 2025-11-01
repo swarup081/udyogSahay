@@ -9,17 +9,17 @@ import Link from 'next/link';
 const FeatureCard = ({ id, label, description, isSelected, onChange }) => (
   <label
     htmlFor={id}
-    className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md ${
+    className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md ${
       isSelected
-        ? 'border-blue-600' // Selected: Blue border, white background
-        : 'border-gray-200 bg-white hover:border-blue-500' // Default: Gray border, hover to blue
+        ? 'border-blue-300' // Selected: Blue border, white background
+        : 'border-gray-300 bg-white hover:border-blue-200' // Default: Gray border, hover to blue
     }`}
   >
     {/* Custom Checkbox visual */}
     <div className="flex-shrink-0 mr-4">
       <div
-        className={`flex items-center justify-center w-5 h-5 border-2 rounded transition-all duration-200 ${
-          isSelected ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-400'
+        className={`flex items-center justify-center w-5 h-5 border-2 rounded-sm transition-all duration-200 ${
+          isSelected ? 'bg-blue-400 border-blue-400' : 'bg-white border-gray-400'
         }`}
       >
         {isSelected && (
