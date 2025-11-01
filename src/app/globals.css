@@ -1,2 +1,18 @@
 
 @import "tailwindcss";
+
+@import "tailwindcss";
+
+/* Custom scrollbar for autocomplete */
+.autocomplete-scrollbar {
+  /* For Firefox */
+  scrollbar-width: none;
+  /* For Internet Explorer and Edge */
+  -ms-overflow-style: none;
+}
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari) */
+.autocomplete-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* make scrollbar transparent */
+}
