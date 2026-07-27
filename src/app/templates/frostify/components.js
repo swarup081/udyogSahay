@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useCart } from './cartContext.js';
 import { useTemplateContext } from './templateContext.js';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ShoppingBag, Instagram, Facebook, Twitter, ChevronDown, ChevronRight, ChevronLeft, Store } from 'lucide-react';
 
@@ -132,7 +133,11 @@ export const ProductCard = ({ item }) => {
     const productUrl = `${basePath && basePath !== '.' ? basePath : ''}/product/${item.id}`;
 
     return (
-        <div className={`group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white border border-pink-50 h-full flex flex-col ${isOutOfStock ? 'opacity-75' : ''}`}>
+        <motion.div 
+            whileHover={{ y: -6 }}
+            transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className={`group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white border border-pink-50 h-full flex flex-col ${isOutOfStock ? 'opacity-75' : ''}`}
+        >
             <a href={productUrl} className="block flex-grow-0">
                 <div className="aspect-[4/5] overflow-hidden relative bg-[#F9F4F6]">
                     <img 
@@ -176,7 +181,7 @@ export const ProductCard = ({ item }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

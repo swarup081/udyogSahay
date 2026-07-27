@@ -1,6 +1,7 @@
 'use client';
 import { useTemplateContext } from './templateContext.js';
 import { ProductCard, FAQAccordion, InstagramFeed, TestimonialSlider, FeatureIcon, NewsletterCTA } from './components.js';
+import { HeroAnimation, ScrollSection, StaggerGrid, StaggerItem, FloatingElement } from '@/components/ui/TemplateAnimation';
 import Link from 'next/link';
 import { Editable } from '@/components/editor/Editable';
 import { Play, ArrowRight, ArrowDown } from 'lucide-react';
@@ -76,15 +77,15 @@ function AuroraContent() {
                         <div className="grid grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-12 items-center">
                             
                             {/* LEFT COLUMN: Text */}
-                            <div className="lg:col-span-6 flex flex-col justify-center lg:pr-12 z-10 pt-4 md:pt-0 lg:py-[220px]">
+                            <HeroAnimation direction="up" delay={0.1} className="lg:col-span-6 flex flex-col justify-center lg:pr-12 z-10 pt-4 md:pt-0 lg:py-[220px]">
                                 <div className="relative">
                                     <h1 className="text-[10vw] md:text-[90px] font-serif leading-[1.1] text-[var(--color-dark)] tracking-tight break-words">
                                         <span className="relative inline-block">
                                             {businessData.hero?.title || "Desire Meets New Style"}
                                             {/* Floating Bracelet Image Graphic */}
-                                            <div className="absolute -left-[10vw] lg:-left-28 top-1/2 -translate-y-1/2 w-[8vw] h-[6vw] lg:w-24 lg:h-16 hidden lg:block rotate-12 opacity-80">
+                                            <FloatingElement yOffset={10} duration={4} className="absolute -left-[10vw] lg:-left-28 top-1/2 -translate-y-1/2 w-[8vw] h-[6vw] lg:w-24 lg:h-16 hidden lg:block rotate-12 opacity-80">
                                                 <img src="https://res.cloudinary.com/drg4lzk9s/image/upload/v1775893558/bizvistar/aurora/diamondsimageforaurora.png" alt="" className="w-full h-full object-contain mix-blend-multiply" />
-                                            </div>
+                                            </FloatingElement>
                                         </span>
                                     </h1>
                                 </div>
@@ -92,10 +93,10 @@ function AuroraContent() {
                                 <p className="text-[var(--color-text-light)] text-[3vw] md:text-lg mt-4 md:mt-8 mb-4 md:mb-10 max-w-lg font-light leading-relaxed break-words">
                                     {businessData.hero?.subtitle || "Anyone can get dressed up and glamorous, but it is how people dress in their days off that."}
                                 </p>
-                            </div>
+                            </HeroAnimation>
 
                             {/* RIGHT COLUMN: Images */}
-                            <div className="lg:col-span-6 relative h-[60vw] lg:h-[750px] mt-4 lg:mt-0">
+                            <HeroAnimation direction="left" delay={0.25} className="lg:col-span-6 relative h-[60vw] lg:h-[750px] mt-4 lg:mt-0">
                                 {/* Main Image (Hands) */}
                                 <div className="absolute left-0 lg:left-0 top-0 w-[60%] h-[85%] z-20">
                                     <img 
@@ -167,12 +168,12 @@ function AuroraContent() {
                                         />
                                     </g>
                                 </svg>
-                            </div>
+                            </HeroAnimation>
                         </div>
                     </div>
 
                     {/* --- STATS BAR OVERLAY (Scaled Down) --- */}
-                    <div className="relative left-0 w-full z-30 mt-8 lg:-mt-[220px]">
+                    <HeroAnimation direction="up" delay={0.35} className="relative left-0 w-full z-30 mt-8 lg:-mt-[220px]">
                         <div className="container mx-auto px-0 lg:px-16">
                             <div className="flex flex-row items-end"> {/* Forced Row on Mobile */}
                                 
@@ -210,7 +211,7 @@ function AuroraContent() {
 
                             </div>
                         </div>
-                    </div>
+                    </HeroAnimation>
                 </section>
             </Editable>
 
@@ -253,7 +254,7 @@ function AuroraContent() {
 
                 {/* --- STORY SECTION --- */}
                 <Editable focusId="about">
-                    <section className="py-12 md:py-32 bg-[var(--color-bg-alt)]">
+                    <ScrollSection direction="up" className="py-12 md:py-32 bg-[var(--color-bg-alt)]">
                         <div className="container mx-auto px-6 lg:px-16 grid grid-cols-2 lg:grid-cols-2 gap-4 lg:gap-20 items-center">
                             <div className="order-2 lg:order-1">
                                 <span className="text-[2.5vw] md:text-xs font-bold tracking-[0.3em] text-[var(--color-gold)] uppercase mb-2 md:mb-4 block">Our Heritage</span>
@@ -281,12 +282,12 @@ function AuroraContent() {
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
 
                 {/* --- COLLECTIONS --- */}
                 <Editable focusId="collection">
-                    <section className="py-12 md:py-32 bg-white">
+                    <ScrollSection direction="up" className="py-12 md:py-32 bg-white">
                         <div className="container mx-auto px-6 lg:px-16">
                             <div className="flex flex-col lg:flex-row justify-between items-end mb-8 md:mb-16 gap-4 md:gap-6">
                                 <div>
@@ -298,11 +299,13 @@ function AuroraContent() {
                                 </Link>
                             </div>
                             
-                            <div className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-10">
+                            <StaggerGrid className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-10">
                                 {featuredProducts.map(product => (
-                                    <ProductCard key={product.id} item={product} />
+                                    <StaggerItem key={product.id}>
+                                        <ProductCard item={product} />
+                                    </StaggerItem>
                                 ))}
-                            </div>
+                            </StaggerGrid>
                             {/* Mobile Only View Collection Button */}
                             <div className="mt-8 text-center block lg:hidden">
                                 <Link href={`${basePath}/shop`} className="inline-block bg-[var(--color-dark)] text-white px-8 py-3 text-[3vw] font-bold uppercase tracking-widest hover:bg-[var(--color-gold)] transition-colors">
@@ -310,19 +313,19 @@ function AuroraContent() {
                                 </Link>
                             </div>
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
 
                 {/* --- REVIEWS (IMPROVED) --- */}
                 <Editable focusId="testimonials">
-                    <section className="py-12 md:py-24 bg-[var(--color-bg)] border-t border-[var(--color-bg-alt)]">
+                    <ScrollSection direction="up" className="py-12 md:py-24 bg-[var(--color-bg)] border-t border-[var(--color-bg-alt)]">
                         <TestimonialSlider data={businessData.testimonials} />
-                    </section>
+                    </ScrollSection>
                 </Editable>
 
                 {/* --- FAQ SECTION --- */}
                 <Editable focusId="faq">
-                    <section className="py-12 md:py-32 bg-white">
+                    <ScrollSection direction="up" className="py-12 md:py-32 bg-white">
                         <div className="container mx-auto px-6 lg:px-16 max-w-6xl">
                             <div className="text-center mb-8 md:mb-16">
                                 <h2 className="text-[7vw] md:text-4xl font-serif mb-2 md:mb-4 text-[var(--color-dark)]">{businessData.faq?.title}</h2>
@@ -334,20 +337,22 @@ function AuroraContent() {
                                 ))}
                             </div>
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
                 
                 {/* --- AN INVITATION (NEW & IMPROVED) --- */}
                 <Editable focusId="cta">
-                    <NewsletterCTA data={businessData.newsletterCta} />
+                    <ScrollSection direction="up">
+                        <NewsletterCTA data={businessData.newsletterCta} />
+                    </ScrollSection>
                 </Editable>
 
                 <Editable focusId="instagram">
-                    <section className="py-12 md:py-24 bg-white">
+                    <ScrollSection direction="up" className="py-12 md:py-24 bg-white">
                         <div className="container mx-auto px-6 lg:px-16">
                             <InstagramFeed data={businessData.instagram} />
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
             </>
             )}

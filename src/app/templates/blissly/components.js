@@ -1,6 +1,7 @@
 'use client';
 import { useCart } from './cartContext.js';
 import { useTemplateContext } from './templateContext.js';
+import { motion } from 'framer-motion';
 
 // --- Reusable SVG Icons ---
 export const StarIcon = () => (
@@ -121,7 +122,11 @@ export const ProductCard = ({ item, templateName }) => {
     const productUrl = `${basePath && basePath !== '.' ? basePath : ''}/product/${item.id}`;
 
     return (
-        <div className={`group h-full flex flex-col border border-brand-primary/50 rounded-lg overflow-hidden shadow-sm transition-all hover:shadow-md ${isOutOfStock ? 'opacity-75' : ''}`}>
+        <motion.div 
+            whileHover={{ y: -6 }}
+            transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className={`group h-full flex flex-col border border-brand-primary/50 rounded-lg overflow-hidden shadow-sm transition-all hover:shadow-md ${isOutOfStock ? 'opacity-75' : ''}`}
+        >
             
             {/* Image */}
             <a href={productUrl} className="block aspect-[4/5] bg-brand-primary overflow-hidden relative">
@@ -173,7 +178,7 @@ export const ProductCard = ({ item, templateName }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

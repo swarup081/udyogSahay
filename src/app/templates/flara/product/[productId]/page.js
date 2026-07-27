@@ -8,6 +8,7 @@ import { useCart } from '../../cartContext.js';
 import Link from 'next/link';
 import { fetchSuggestedProducts } from '@/app/actions/recommendations';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HeroAnimation, ScrollSection, StaggerGrid, StaggerItem } from '@/components/ui/TemplateAnimation';
 
 export default function ProductDetailPage() {
     const params = useParams();
@@ -72,18 +73,10 @@ export default function ProductDetailPage() {
         }
     }, [product]);
 
-    // --- Stock Logic ---
-    const rawStock = product?.stock;
-    const isUnlimited = rawStock === -1;
-    const stock = isUnlimited ? Infinity : (rawStock || 0);
-    const isOutOfStock = !isUnlimited && stock === 0;
-    const isLowStock = !isUnlimited && stock > 0 && stock < 10;
-    
     useEffect(() => {
         const loadSuggestions = async () => {
              if (product) {
                  if (websiteId) {
-                     // Request 2-8 items
                      const suggestions = await fetchSuggestedProducts(websiteId, product, 2, 8);
                      if (suggestions && suggestions.length > 0) {
                          setRelatedProducts(suggestions);
@@ -91,7 +84,6 @@ export default function ProductDetailPage() {
                      }
                  }
                  
-                 // Fallback
                  const local = businessData.allProducts
                     .filter(p => String(p.category) === String(product.category) && String(p.id) !== String(product.id))
                     .slice(0, 4);
@@ -102,16 +94,30 @@ export default function ProductDetailPage() {
     }, [product, websiteId, businessData.allProducts]);
 
     if (!product) {
-        return <div className="container mx-auto px-6 py-20 text-center text-brand-text">Product not found.</div>;
+        return (
+            <div className="container mx-auto px-6 py-32 text-center">
+                <h1 className="text-4xl font-serif text-brand-text mb-4">Product Not Found</h1>
+                <Link href="../shop" className="text-brand-secondary underline">Back to Shop</Link>
+            </div>
+        );
     }
     
     const handleAddToCart = () => {
-        addToCart({ ...product, selectedVariants }, quantity);
+        addToCart({
+            ...product,
+            selectedVariants
+        }, quantity);
     };
 
     const handleVariantChange = (name, value) => {
         setSelectedVariants(prev => ({ ...prev, [name]: value }));
     };
+
+    // Stock Logic
+    const rawStock = product?.stock;
+    const isUnlimited = rawStock === -1;
+    const stock = isUnlimited ? Infinity : (rawStock || 0);
+    const isOutOfStock = !isUnlimited && stock === 0;
 
     // Carousel Logic
     const nextImage = () => {
@@ -121,25 +127,20 @@ export default function ProductDetailPage() {
         setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
     };
 
+    const variants = Array.isArray(product.variants) ? product.variants : [];
+
     return (
         <div className="container mx-auto px-6 py-12 md:py-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+            <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
                 
                 {/* Image Gallery (Carousel) */}
-                <div className="relative group w-full max-w-lg mx-auto md:mx-0">
+                <StaggerItem className="relative group w-full max-w-lg mx-auto md:mx-0">
                     <div className="bg-brand-primary overflow-hidden rounded-xl relative aspect-[4/5] max-h-[60vh] md:max-h-[600px] w-full" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
                          <img 
                             src={allImages[currentImageIndex]} 
                             alt={product.name} 
                             className="w-full h-full object-cover transition-opacity duration-300"
                         />
-                        {isOutOfStock && (
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                <span className="bg-red-400 text-white px-6 py-2 rounded font-bold uppercase tracking-wider">
-                                    Out of Stock
-                                </span>
-                            </div>
-                        )}
                     </div>
 
                      {/* Arrows */}
@@ -147,105 +148,105 @@ export default function ProductDetailPage() {
                         <>
                             <button 
                                 onClick={prevImage}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                                <ChevronLeft size={24} />
+                                <ChevronLeft size={20} />
                             </button>
                             <button 
                                 onClick={nextImage}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                                <ChevronRight size={24} />
+                                <ChevronRight size={20} />
                             </button>
-                             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                                 {allImages.map((_, idx) => (
-                                    <div 
+                                    <button 
                                         key={idx}
-                                        className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white w-4' : 'bg-white/50'}`}
+                                        onClick={() => setCurrentImageIndex(idx)} 
+                                        className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-black w-4' : 'bg-black/40'}`} 
                                     />
                                 ))}
                             </div>
                         </>
                     )}
-                </div>
+
+                    {/* Thumbnails */}
+                    {allImages.length > 1 && (
+                        <div className="flex gap-4 mt-4 overflow-x-auto pb-2">
+                            {allImages.map((img, idx) => (
+                                <button 
+                                    key={idx} 
+                                    onClick={() => setCurrentImageIndex(idx)}
+                                    className={`w-20 h-24 bg-brand-primary rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${currentImageIndex === idx ? 'border-brand-secondary' : 'border-transparent opacity-70 hover:opacity-100'}`}
+                                >
+                                    <img src={img} alt="" className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </StaggerItem>
                 
                 {/* Product Info */}
-                <div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-brand-text font-serif mt-2">{product.name}</h1>
-                    <p className="text-2xl md:text-3xl text-brand-text font-serif mt-4">₹{product.price.toFixed(2)}</p>
-
-                    {/* Stock Status Badge */}
-                    <div className="mt-4">
-                        {isOutOfStock ? (
-                             <span className="text-red-600 font-medium uppercase tracking-wide text-sm">Sold Out</span>
-                        ) : isLowStock ? (
-                             <span className="text-orange-600 font-medium uppercase tracking-wide text-sm">Only {stock} left!</span>
-                        ) : (
-                             <span className="text-green-600 font-medium uppercase tracking-wide text-sm">In Stock</span>
-                        )}
-                    </div>
-                    
+                <StaggerItem className="flex flex-col">
                     {category && (
-                        <div className="mt-6">
-                            <h3 className="text-sm font-bold text-brand-text/50 uppercase tracking-wider mb-1">Category</h3>
-                            <p className="text-brand-text/80 text-lg">{category.name}</p>
-                        </div>
+                        <span className="text-xs font-bold uppercase tracking-widest text-brand-text/50 mb-2">
+                            {category.name}
+                        </span>
                     )}
+                    <h1 className="text-[7vw] md:text-5xl font-serif font-medium text-brand-text mb-4">
+                        {product.name}
+                    </h1>
+                    <p className="text-[5vw] md:text-3xl font-light text-brand-secondary mb-8">
+                        ₹{product.price.toFixed(2)}
+                    </p>
 
-                    {product.description && (
-                        <div className="mt-6">
-                            <h3 className="text-sm font-bold text-brand-text/50 uppercase tracking-wider mb-2">Description</h3>
-                            <p className="text-brand-text/80 text-lg leading-relaxed">
-                                {product.description}
-                            </p>
-                        </div>
-                    )}
+                    {/* Dynamic Variants */}
+                    {variants.length > 0 && (
+                        <div className="mb-8 space-y-4 border-t border-b border-brand-text/10 py-6">
+                            {variants.map((v, i) => {
+                                const values = v.values.split(',').map(s => s.trim()).filter(Boolean);
+                                if (values.length === 0) return null;
 
-                    {/* Variants */}
-                    {product.variants && product.variants.length > 0 && (
-                        <div className="mt-8 space-y-4">
-                            {product.variants.map((v, idx) => {
-                                const rawValues = v.values.split(',').map(s => s.trim());
                                 return (
-                                    <div key={idx}>
-                                        <h3 className="text-sm font-bold text-brand-text/50 uppercase tracking-wider mb-2">
-                                            {v.name}: <span className="text-brand-text normal-case font-normal ml-1">{selectedVariants[v.name]}</span>
-                                        </h3>
+                                    <div key={i}>
+                                        <span className="text-xs font-bold uppercase tracking-widest text-brand-text/50 block mb-3">
+                                            {v.name}: <span className="text-brand-text font-normal">{selectedVariants[v.name]}</span>
+                                        </span>
                                         <div className="flex flex-wrap gap-2">
-                                            {v.type === 'color' ? (
-                                                rawValues.map(valStr => {
-                                                    const [hex, name] = valStr.split(':');
-                                                    const colorName = name || hex;
-                                                    const isSelected = selectedVariants[v.name] === hex;
+                                            {values.map((val, idx) => {
+                                                let label = val;
+                                                let colorCode = null;
+                                                if (v.type === 'color') {
+                                                    const parts = val.split(':');
+                                                    label = parts[0];
+                                                    colorCode = parts[1] || parts[0];
+                                                }
+                                                const isSelected = selectedVariants[v.name] === label;
+
+                                                if (v.type === 'color' && colorCode) {
                                                     return (
                                                         <button
-                                                            key={hex}
-                                                            onClick={() => handleVariantChange(v.name, hex)}
-                                                            className={`w-10 h-10 rounded-full border-2 transition-all relative group ${isSelected ? 'border-brand-text ring-1 ring-brand-text ring-offset-2' : 'border-transparent hover:scale-110'}`}
-                                                            style={{ backgroundColor: hex }}
-                                                            title={colorName}
-                                                        >
-                                                            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity z-10">
-                                                                {colorName}
-                                                            </span>
-                                                        </button>
+                                                            key={idx}
+                                                            type="button"
+                                                            onClick={() => handleVariantChange(v.name, label)}
+                                                            className={`w-8 h-8 rounded-full border-2 transition-all ${isSelected ? 'border-brand-secondary scale-110 shadow' : 'border-transparent opacity-80 hover:opacity-100'}`}
+                                                            style={{ backgroundColor: colorCode }}
+                                                            title={label}
+                                                        />
                                                     );
-                                                })
-                                            ) : (
-                                                rawValues.map(opt => (
+                                                }
+
+                                                return (
                                                     <button
-                                                        key={opt}
-                                                        onClick={() => handleVariantChange(v.name, opt)}
-                                                        className={`px-4 py-2 border rounded-md text-sm font-medium transition-all ${
-                                                            selectedVariants[v.name] === opt
-                                                                ? 'bg-brand-secondary text-brand-bg border-brand-secondary'
-                                                                : 'border-brand-text/20 text-brand-text hover:border-brand-secondary'
-                                                        }`}
+                                                        key={idx}
+                                                        type="button"
+                                                        onClick={() => handleVariantChange(v.name, label)}
+                                                        className={`px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-widest transition-all ${isSelected ? 'border-brand-secondary bg-brand-secondary text-brand-bg' : 'border-brand-text/20 text-brand-text hover:border-brand-text/40'}`}
                                                     >
-                                                        {opt}
+                                                        {label}
                                                     </button>
-                                                ))
-                                            )}
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 );
@@ -253,8 +254,18 @@ export default function ProductDetailPage() {
                         </div>
                     )}
                     
+                    {/* Description */}
+                    {product.description && (
+                        <div className="mb-8">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-brand-text/50 mb-2">Description</h3>
+                            <p className="text-brand-text/80 text-base leading-relaxed">
+                                {product.description}
+                            </p>
+                        </div>
+                    )}
+                    
                     {/* Quantity & Add to Cart */}
-                    <div className="flex items-center gap-4 mt-8 border-t border-brand-text/10 pt-8">
+                    <div className="flex items-center gap-4 mt-4 border-t border-brand-text/10 pt-8">
                         <div className={`flex items-center border border-brand-text/30 rounded ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
                             <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-10 h-10 md:w-12 md:h-12 text-xl md:text-2xl text-brand-text/70 hover:bg-brand-primary">-</button>
                             <span className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-lg font-bold border-x border-brand-text/30">{quantity}</span>
@@ -263,38 +274,39 @@ export default function ProductDetailPage() {
                         <button 
                             onClick={handleAddToCart}
                             disabled={isOutOfStock}
-                            className={`flex-grow h-10 md:h-12 rounded bg-brand-secondary text-brand-bg font-semibold uppercase tracking-wider hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed`}
+                            className={`flex-grow h-10 md:h-12 rounded bg-brand-secondary text-brand-bg font-semibold uppercase tracking-wider hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}
                         >
                             {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                         </button>
                     </div>
-                </div>
-            </div>
+                </StaggerItem>
+            </StaggerGrid>
             
             {/* Related Products */}
-            <div className="mt-24">
-                <h2 className="text-3xl font-bold text-brand-text font-serif mb-8">You Might Also Like</h2>
-                {/* 2 cols on mobile (grid-cols-2), 4 on desktop (lg:grid-cols-4) */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-                     {relatedProducts.map(item => (
-                        <div key={item.id} className="group text-left">
-                            <Link href={`${basePath}/product/${item.id}`} className="block bg-brand-primary overflow-hidden relative aspect-[4/5] rounded-lg">
-                                <img 
-                                    src={item.image} 
-                                    alt={item.name} 
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                />
-                            </Link>
-                            <div className="mt-4">
-                                <h3 className="text-base md:text-xl font-serif font-medium text-brand-text line-clamp-1">
-                                    <Link href={`${basePath}/product/${item.id}`} className="hover:text-brand-secondary">{item.name}</Link>
-                                </h3>
-                                <p className="text-brand-text font-medium text-sm md:text-base mt-1">₹{item.price.toFixed(2)}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            {relatedProducts.length > 0 && (
+                <ScrollSection direction="up" className="mt-24">
+                    <h2 className="text-3xl font-bold text-brand-text font-serif mb-8">You Might Also Like</h2>
+                    <StaggerGrid className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                         {relatedProducts.map(item => (
+                            <StaggerItem key={item.id} className="group text-left">
+                                <Link href={`${basePath}/product/${item.id}`} className="block bg-brand-primary overflow-hidden relative aspect-[4/5] rounded-lg">
+                                    <img 
+                                        src={item.image} 
+                                        alt={item.name} 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                </Link>
+                                <div className="mt-4">
+                                    <h3 className="text-base md:text-xl font-serif font-medium text-brand-text line-clamp-1">
+                                        <Link href={`${basePath}/product/${item.id}`} className="hover:text-brand-secondary">{item.name}</Link>
+                                    </h3>
+                                    <p className="text-brand-text font-medium text-sm md:text-base mt-1">₹{item.price.toFixed(2)}</p>
+                                </div>
+                            </StaggerItem>
+                        ))}
+                    </StaggerGrid>
+                </ScrollSection>
+            )}
         </div>
     );
 }

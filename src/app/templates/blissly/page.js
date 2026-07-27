@@ -10,6 +10,7 @@ import {
     ChevronLeftIcon, 
     ChevronRightIcon 
 } from './components.js'; // Import new ProductCard and icons
+import { HeroAnimation, ScrollSection, StaggerGrid, StaggerItem } from '@/components/ui/TemplateAnimation';
 
 // Helper: Get product details from the master list by their IDs
 const getProductsByIds = (allProducts, ids) => {
@@ -52,7 +53,7 @@ export default function BrewhavenPage() {
             <Editable focusId="hero">
                 <section id="home" className="relative overflow-hidden bg-brand-primary">
                 <div className="container mx-auto px-4 md:px-6 py-10 md:py-28 max-w-5xl grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-10 items-center">
-                    <div className="flex flex-col gap-2 md:gap-6 text-left items-start">
+                    <HeroAnimation direction="up" delay={0.1} className="flex flex-col gap-2 md:gap-6 text-left items-start">
                     <h1 className="text-[6vw] md:text-6xl font-bold text-brand-text leading-tight">{businessData.hero.title}</h1>
                     <p className="text-[2.5vw] md:text-lg text-brand-text opacity-70 max-w-md leading-tight">{businessData.hero.subtitle}</p>
                     <a 
@@ -61,9 +62,9 @@ export default function BrewhavenPage() {
                     >
                         <span>{businessData.hero.cta}</span>
                     </a>
-                    </div>
+                    </HeroAnimation>
                     {/* Image always visible now for shrink layout */}
-                    <div className="flex justify-center">
+                    <HeroAnimation direction="left" delay={0.2} className="flex justify-center">
                     <div className="w-full max-w-sm lg:max-w-md aspect-square overflow-hidden">
                         <img 
                         src={businessData.hero.image} 
@@ -71,7 +72,7 @@ export default function BrewhavenPage() {
                         className="w-full h-full object-contain object-center"
                         />
                     </div>
-                    </div>
+                    </HeroAnimation>
                 </div>
                 <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] rotate-180">
                     <svg className="relative block w-[calc(100%+1.3px)] h-8 md:h-32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -83,7 +84,7 @@ export default function BrewhavenPage() {
 
             {/* --- Events Section --- */}
             <Editable focusId="events">
-                <section id="events" className="py-10 md:py-24">
+                <ScrollSection direction="up" id="events" className="py-10 md:py-24">
                     <div className="container mx-auto px-4 md:px-6">
                         <h2 className="text-[6vw] md:text-5xl font-bold text-brand-text text-center mb-8 md:mb-16">{businessData.events.title}</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
@@ -101,12 +102,12 @@ export default function BrewhavenPage() {
                             ))}
                         </div>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- About Section --- */}
             <Editable focusId="about">
-                <section id="about" className="py-10 md:py-24 bg-brand-primary relative">
+                <ScrollSection direction="up" id="about" className="py-10 md:py-24 bg-brand-primary relative">
                 <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0]">
                     <svg className="relative block w-[calc(100%+1.3px)] h-8 md:h-32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
                     <path d="M0,50 C100,90 200,10 300,50 C400,90 500,10 600,50 C700,90 800,10 900,50 C1000,90 1100,10 1200,50 L1200,0 L0,0 Z" fill="currentColor" className="text-brand-bg"/>
@@ -138,12 +139,12 @@ export default function BrewhavenPage() {
                     <path d="M0,50 C100,90 200,10 300,50 C400,90 500,10 600,50 C700,90 800,10 900,50 C1000,90 1100,10 1200,50 L1200,0 L0,0 Z" fill="currentColor" className="text-brand-bg"/>
                     </svg>
                 </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- Menu Section --- */}
             <Editable focusId="menu">
-                <section id="menu" className="py-10 md:py-24">
+                <ScrollSection direction="up" id="menu" className="py-10 md:py-24">
                     <div className="container mx-auto px-4 md:px-6">
                         <div className="text-center max-w-3xl mx-auto mb-8 md:mb-16">
                             <span className="inline-block bg-brand-primary text-brand-secondary text-[2vw] md:text-sm font-semibold px-3 py-0.5 md:px-4 md:py-1 rounded-full mb-2 md:mb-4">
@@ -169,12 +170,12 @@ export default function BrewhavenPage() {
                             </a>
                         </div>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- Testimonials Section --- */}
             <Editable focusId="testimonials">
-                <section id="testimonials" className="py-10 md:py-24 bg-brand-bg">
+                <ScrollSection direction="up" id="testimonials" className="py-10 md:py-24 bg-brand-bg">
                     <div className="container mx-auto px-6 relative max-w-3xl">
                         <div className="relative flex flex-col items-center">
                             <span className="font-serif text-[15vw] md:text-9xl text-brand-text/80 leading-none -mb-2 md:-mb-4">”</span>
@@ -213,30 +214,31 @@ export default function BrewhavenPage() {
                             ))}
                         </div>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
             
             {/* --- Specialty Section --- */}
             <Editable focusId="specialty">
-                <section id="specialty" className="py-10 md:py-24">
+                <ScrollSection direction="up" id="specialty" className="py-10 md:py-24">
                     <div className="container mx-auto px-4 md:px-6 text-center">
                         <h2 className="text-[6vw] md:text-5xl font-bold text-brand-text mb-8 md:mb-16">{businessData.specialty.title}</h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                        <StaggerGrid className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                             {specialtyProducts.map((item) => (
-                                <ProductCard 
-                                    key={item.id} 
-                                    item={item}
-                                    templateName="blissly"
-                                />
+                                <StaggerItem key={item.id}>
+                                    <ProductCard 
+                                        item={item}
+                                        templateName="blissly"
+                                    />
+                                </StaggerItem>
                             ))}
-                        </div>
+                        </StaggerGrid>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- Final CTA --- */}
             <Editable focusId="cta">
-                <section id="cta-final" className="py-10 md:py-24 bg-brand-primary">
+                <ScrollSection direction="up" id="cta-final" className="py-10 md:py-24 bg-brand-primary">
                     <div className="container mx-auto px-4 md:px-6 flex flex-row md:flex-row justify-between items-center text-left md:text-left gap-4">
                         <div>
                             <h2 className="text-[5vw] md:text-4xl font-bold text-brand-text max-w-xl">{businessData.cta.title}</h2>
@@ -249,7 +251,7 @@ export default function BrewhavenPage() {
                             <span className="whitespace-nowrap">{businessData.cta.cta}</span>
                         </a>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
         </main>
     );

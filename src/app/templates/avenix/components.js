@@ -1,4 +1,5 @@
 'use client';
+import { motion } from 'framer-motion';
 import { useCart } from './cartContext.js';
 import { useTemplateContext } from './templateContext.js'; // Import the context hook
 
@@ -152,7 +153,14 @@ export const ProductCard = ({ item, templateName }) => {
     const productUrl = `${basePath && basePath !== '.' ? basePath : ''}/product/${item.id}`;
 
     return (
-        <div className={`group text-center h-full flex flex-col justify-between ${isOutOfStock ? 'opacity-75' : ''}`}>
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-20px" }}
+            whileHover={{ y: -6 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className={`group text-center h-full flex flex-col justify-between transition-shadow duration-300 rounded-xl md:rounded-2xl ${isOutOfStock ? 'opacity-75' : ''}`}
+        >
             {/* Top section: Image, Title, Price */}
             <div>
                 <a href={productUrl} className="block bg-white overflow-hidden relative aspect-[4/5] rounded-xl md:rounded-2xl">
@@ -201,7 +209,7 @@ export const ProductCard = ({ item, templateName }) => {
                     {isOutOfStock ? 'Sold Out' : 'Add'}
                 </button>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

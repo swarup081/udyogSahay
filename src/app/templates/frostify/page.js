@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Editable } from '@/components/editor/Editable';
 import { ArrowRight, Star } from 'lucide-react';
 import { useState, useEffect } from 'react'; // Added import for slider logic
+import { HeroAnimation, ScrollSection, StaggerGrid, StaggerItem } from '@/components/ui/TemplateAnimation';
 
 const getProductsByIds = (allProducts, ids) => {
     if (!allProducts || !ids) return [];
@@ -37,7 +38,7 @@ export default function FrostifyPage() {
            <Editable focusId="hero">
                 <section className="relative w-full pb-8 md:pb-20">
                     <div className="h-2 md:h-4 bg-[var(--color-primary)] w-full opacity-10"></div>
-                    <div className="container mx-auto px-6 pt-6 md:pt-12 relative">
+                    <HeroAnimation direction="up" className="container mx-auto px-6 pt-6 md:pt-12 relative">
                         {/* 
                             Hero Layout: "Shrink" Strategy
                             We keep the 12-column grid but use vw units for heights and spacing on mobile to fit it in one view.
@@ -68,13 +69,13 @@ export default function FrostifyPage() {
                                 <img src={businessData.hero?.image2} className="w-full h-full object-cover" alt="" />
                             </div>
                         </div>
-                    </div>
+                    </HeroAnimation>
                 </section>
             </Editable>
 
             {/* --- ABOUT SECTION --- */}
             <Editable focusId="about">
-                <section className="bg-[var(--color-primary)] py-10 md:py-20 relative overflow-hidden">
+                <ScrollSection direction="up" className="bg-[var(--color-primary)] py-10 md:py-20 relative overflow-hidden">
                     <div className="container mx-auto px-6 relative z-10">
                         <div className="bg-white rounded-tl-[40px] md:rounded-tl-[80px] p-0 overflow-hidden flex flex-row md:flex-row max-w-4xl mx-auto shadow-2xl">
                             <div className="w-1/2 md:w-1/3 h-auto">
@@ -87,15 +88,15 @@ export default function FrostifyPage() {
                             </div>
                         </div>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- SPECIALTIES --- */}
             <Editable focusId="specialties">
-                <section className="py-12 md:py-24 bg-[var(--color-primary)] text-white relative">
+                <ScrollSection direction="up" className="py-12 md:py-24 bg-[var(--color-primary)] text-white relative">
                     <div className="container mx-auto px-6">
                         <h2 className="text-[6vw] md:text-4xl font-serif text-center mb-8 md:mb-16 text-white">{businessData.specialties?.title}</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 max-w-6xl mx-auto">
+                        <StaggerGrid className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 max-w-6xl mx-auto">
                           {(businessData.specialties?.items || []).map((item, index) => {
                               const shapes = [
                                   "rounded-r-full rounded-tl-full",
@@ -105,29 +106,33 @@ export default function FrostifyPage() {
                               ];
                               const shapeClass = shapes[index % shapes.length];
                               return (
-                                  <SpecialtyCard key={index} title={item.title} icon={item.icon} shapeClass={shapeClass} />
+                                  <StaggerItem key={index}>
+                                      <SpecialtyCard title={item.title} icon={item.icon} shapeClass={shapeClass} />
+                                  </StaggerItem>
                               );
                           })}
-                        </div>
+                        </StaggerGrid>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full translate-y-[99%] text-[var(--color-primary)]">
                         <WavySeparatorBottom fill="currentColor" />
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- GALLERY STRIP with Product Cards --- */}
             <Editable focusId="gallery">
-                <section className="py-12 pt-20 md:py-24 md:pt-32 bg-[#fff]">
+                <ScrollSection direction="up" className="py-12 pt-20 md:py-24 md:pt-32 bg-[#fff]">
                     <div className="container mx-auto px-6">
                         <h2 className="text-[6vw] md:text-4xl font-serif text-[var(--color-primary)] text-center mb-6 md:mb-12">{businessData.gallery?.title}</h2>
                         
                         {/* Grid of Cards */}
-                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+                        <StaggerGrid className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
                             {getProductsByIds(businessData.allProducts, businessData.gallery?.items || []).map((item) => (
-                                <ProductCard key={item.id} item={item} />
+                                <StaggerItem key={item.id}>
+                                    <ProductCard item={item} />
+                                </StaggerItem>
                             ))}
-                        </div>
+                        </StaggerGrid>
 
                         {/* Explore Full Collection Button */}
                         <div className="mt-8 md:mt-16 text-center">
@@ -139,12 +144,12 @@ export default function FrostifyPage() {
                             </Link>
                         </div>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- TESTIMONIALS (UPDATED UI with Mobile Slider) --- */}
             <Editable focusId="testimonials">
-                <section className="py-12 md:py-24 bg-[#F9F4F6] border-t border-white">
+                <ScrollSection direction="up" className="py-12 md:py-24 bg-[#F9F4F6] border-t border-white">
                     <div className="container mx-auto px-6 max-w-6xl">
                         <div className="text-center mb-8 md:mb-16">
                             <span className="text-[var(--color-secondary)] text-[2.5vw] md:text-xs font-bold uppercase tracking-[0.2em]">What People Are Saying</span>
@@ -218,12 +223,12 @@ export default function FrostifyPage() {
                             ))}
                         </div>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- FAQ SECTION --- */}
             <Editable focusId="faq">
-                <section className="py-10 md:py-20 bg-white border-t border-brand-100">
+                <ScrollSection direction="up" className="py-10 md:py-20 bg-white border-t border-brand-100">
                     <div className="container mx-auto px-6 max-w-3xl">
                         <div className="text-center mb-8 md:mb-12">
                             <h2 className="text-[6vw] md:text-3xl font-serif text-[var(--color-primary)]">{businessData.faq?.title}</h2>
@@ -232,7 +237,7 @@ export default function FrostifyPage() {
                             <FAQItem key={i} question={q.q} answer={q.a} />
                         ))}
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
         </div>

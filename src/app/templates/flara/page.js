@@ -3,7 +3,8 @@ import { useTemplateContext } from './templateContext.js';
 import { ArrowRightIcon, ShippingIcon, ProductCard } from './components.js';
 import Link from 'next/link';
 import { Editable } from '@/components/editor/Editable'; 
-import { getLandingItems, getBestSellerItems } from '@/lib/templates/templateLogic'; // --- NEW IMPORT ---
+import { getLandingItems, getBestSellerItems } from '@/lib/templates/templateLogic';
+import { HeroAnimation, ScrollSection, StaggerGrid, StaggerItem } from '@/components/ui/TemplateAnimation';
 
 const getProductsByIds = (allProducts, ids) => {
     if (!allProducts || !ids) return []; 
@@ -30,7 +31,7 @@ export default function CandleaPage() {
             <section id="home" className="container mx-auto px-6 py-10 md:py-32">
                 <div className="flex flex-col-reverse md:grid md:grid-cols-2 gap-6 md:gap-12 items-center">
                     <Editable focusId="hero">
-                        <div className="flex flex-col gap-3 md:gap-6 md:pr-10 text-left items-start w-full">
+                        <HeroAnimation direction="up" delay={0.1} className="flex flex-col gap-3 md:gap-6 md:pr-10 text-left items-start w-full">
                             <h1 className="text-3xl md:text-7xl font-bold text-brand-text leading-tight font-serif">{businessData.hero.title}</h1>
                             <p className="text-sm md:text-lg text-brand-text opacity-70 max-w-md">{businessData.hero.subtitle}</p>
                        <Link 
@@ -40,10 +41,10 @@ export default function CandleaPage() {
                             <span>{businessData.hero.cta}</span>
                             <ArrowRightIcon />
                         </Link>
-                        </div>
+                        </HeroAnimation>
                     </Editable>
                     <Editable focusId="hero">
-                        <div className="flex justify-center w-full">
+                        <HeroAnimation direction="left" delay={0.2} className="flex justify-center w-full">
                             <div className="w-full max-w-md lg:max-w-lg aspect-[4/5] rounded-bl-[50px] rounded-tr-[50px] md:rounded-bl-[150px] md:rounded-tr-[150px] overflow-hidden">
                                 <img 
                                     src={businessData.hero.image} 
@@ -51,7 +52,7 @@ export default function CandleaPage() {
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                        </div>
+                        </HeroAnimation>
                     </Editable>
                 </div>
             </section>
@@ -80,7 +81,7 @@ export default function CandleaPage() {
 
             {/* --- Feature Section 1 --- */}
             <Editable focusId="about">
-                <section id="about" className="py-10 md:py-24 bg-brand-primary">
+                <ScrollSection id="about" direction="up" className="py-10 md:py-24 bg-brand-primary">
                     <div className="container mx-auto px-6 flex flex-row md:grid md:grid-cols-2 gap-4 md:gap-12 items-center">
                         <div className="flex justify-center w-1/2 md:w-full">
                             <img 
@@ -102,11 +103,11 @@ export default function CandleaPage() {
                             </Link>
                         </div>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
             
             {/* --- Collection Section --- */}
-            <section id="collection" className="py-10 md:py-24 bg-brand-bg">
+            <ScrollSection id="collection" direction="up" className="py-10 md:py-24 bg-brand-bg">
                 <Editable focusId="collection">
                     <div className="container mx-auto px-6">
                         <div className="flex justify-between items-center mb-12">
@@ -116,14 +117,14 @@ export default function CandleaPage() {
                                 <ArrowRightIcon />
                             </Link>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8 md:gap-8">
+                        <StaggerGrid className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8 md:gap-8">
                             {collectionItems.map((item, index) => {
                                 const isCategory = item.type === 'category';
                                 const href = isCategory ? `${basePath}/shop?category=${item.id}` : `${basePath}/product/${item.id}`;
                                 const btnText = isCategory ? 'View Collection' : 'View Product';
 
                                 return (
-                                    <div key={item.id} className={`${index >= 2 ? 'hidden md:block' : ''}`}>
+                                    <StaggerItem key={item.id} className={`${index >= 2 ? 'hidden md:block' : ''}`}>
                                         <Link 
                                         href={href}
                                         className="group relative block overflow-hidden shadow-lg aspect-[4/5] rounded-t-full md:rounded-none md:hover:rounded-t-full transition-all duration-500"
@@ -150,28 +151,29 @@ export default function CandleaPage() {
                                         <div className="block md:hidden text-center mt-3">
                                             <h3 className="text-sm font-bold text-brand-text font-serif">{item.name}</h3>
                                         </div>
-                                    </div>
+                                    </StaggerItem>
                                 );
                             })}
-                        </div>
+                        </StaggerGrid>
                     </div>
                 </Editable>
-            </section>
+            </ScrollSection>
             
             {/* --- Best Sellers --- */}
-            <section id="shop" className="py-24 bg-brand-bg">
+            <ScrollSection id="shop" direction="up" className="py-24 bg-brand-bg">
                 <Editable focusId="collection">
                     <div className="container mx-auto px-6 text-center">
                         <h2 className="text-4xl font-bold text-brand-text mb-16 font-serif">{businessData.bestSellers.title}</h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 items-stretch">
+                        <StaggerGrid className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 items-stretch">
                             {bestSellerItems.map(item => (
-                                <ProductCard 
-                                    key={item.id} 
-                                    item={item}
-                                    templateName="flara"
-                                />
+                                <StaggerItem key={item.id}>
+                                    <ProductCard 
+                                        item={item}
+                                        templateName="flara"
+                                    />
+                                </StaggerItem>
                             ))}
-                        </div>
+                        </StaggerGrid>
                         <Link 
                             href={`${basePath}/shop`}
                             className="mt-16 inline-flex items-center gap-2 font-semibold text-brand-text hover:text-brand-bg border border-brand-text hover:bg-brand-secondary transition-all duration-300 px-6 py-3 "
@@ -181,11 +183,11 @@ export default function CandleaPage() {
                         </Link>
                     </div>
                 </Editable>
-            </section>
+            </ScrollSection>
 
             {/* --- Feature Section 2 --- */}
             <Editable focusId="feature2">
-                <section id="feature2" className="py-10 md:py-24 overflow-hidden bg-brand-bg">
+                <ScrollSection id="feature2" direction="up" className="py-10 md:py-24 overflow-hidden bg-brand-bg">
                     <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-16 items-start">
                         <div className="relative w-full mt-8 md:mt-0">
                             <div className="w-full aspect-[4/5] rounded-t-full overflow-hidden">
@@ -210,20 +212,19 @@ export default function CandleaPage() {
                             </div>
                         </div>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
 
             {/* --- Blog --- */}
             <Editable focusId="blog">
-                <section id="blog" className="py-24 bg-brand-primary">
+                <ScrollSection id="blog" direction="up" className="py-24 bg-brand-primary">
                     <div className="container mx-auto px-6">
                         <div className="flex justify-between items-center mb-12">
                             <h2 className="text-4xl font-bold text-brand-text font-serif">{businessData.blog.title}</h2>
-                            {/* "See All" Link Removed */}
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                        <StaggerGrid className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                             {(businessData.blog.items || []).map(post => (
-                                <div key={post.title} className="group">
+                                <StaggerItem key={post.title} className="group">
                                     <a href="#" className="block overflow-hidden aspect-video bg-brand-bg">
                                         <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                     </a>
@@ -233,11 +234,11 @@ export default function CandleaPage() {
                                         <p className="text-brand-text opacity-70 mt-2">{post.text}</p>
                                         <a href="#" className="inline-block mt-4 font-semibold text-brand-text text-sm  underline-offset-4">Read more →</a>
                                     </div>
-                                </div>
+                                </StaggerItem>
                             ))}
-                        </div>
+                        </StaggerGrid>
                     </div>
-                </section>
+                </ScrollSection>
             </Editable>
         </>
     );

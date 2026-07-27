@@ -1,5 +1,6 @@
 'use client';
 import { useState, Suspense } from 'react';
+import { motion } from 'framer-motion';
 import { useCart } from './cartContext.js';
 import { useTemplateContext } from './templateContext.js';
 import Link from 'next/link';
@@ -125,7 +126,14 @@ export const ProductCard = ({ item }) => {
     const productUrl = `${basePath && basePath !== '.' ? basePath : ''}/product/${item.id}`;
 
     return (
-        <div className={`group cursor-pointer flex flex-col gap-3 md:gap-5 h-full ${isOutOfStock ? 'opacity-75' : ''}`}>
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-20px" }}
+            whileHover={{ y: -6 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className={`group cursor-pointer flex flex-col gap-3 md:gap-5 h-full ${isOutOfStock ? 'opacity-75' : ''}`}
+        >
             <div className="relative overflow-hidden aspect-[3/4] bg-[var(--color-bg-alt)]">
                 <img 
                     src={item.image || item.image_url} 
@@ -167,7 +175,7 @@ export const ProductCard = ({ item }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

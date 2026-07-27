@@ -1,6 +1,7 @@
 'use client';
 import { useCart } from './cartContext.js';
 import { useTemplateContext } from './templateContext.js'; // <-- 1. IMPORT THE CONTEXT
+import { motion } from 'framer-motion';
 
 // --- Header Component ---
 export const Header = ({ business, cartCount, onCartClick }) => {
@@ -45,7 +46,11 @@ export const ProductCard = ({ item }) => {
     // --- END OF FIX ---
 
     return (
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full border border-brand-primary/50">
+        <motion.div 
+            whileHover={{ y: -6 }}
+            transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full border border-brand-primary/50"
+        >
             
             {/* Image (No longer a link) */}
             <div className="block aspect-h-1 aspect-w-1 h-48">
@@ -78,7 +83,7 @@ export const ProductCard = ({ item }) => {
                     )}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

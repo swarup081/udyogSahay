@@ -5,6 +5,7 @@ import { useTemplateContext } from '../templateContext.js';
 import { ProductCard } from '../components.js';
 import { useSearchParams } from 'next/navigation';
 import { sortProducts } from '@/lib/templates/templateLogic';
+import { HeroAnimation, AnimatedProductGrid, AnimatedProductItem } from '@/components/ui/TemplateAnimation';
 
 function ShopContent() {
     const searchParams = useSearchParams();
@@ -45,33 +46,36 @@ function ShopContent() {
 
     return (
         <div className="container mx-auto px-6 py-16">
-            <h1 className="text-5xl font-bold text-brand-text font-serif text-center mb-12">Shop Our Collection</h1>
+            <HeroAnimation direction="up" duration={0.7}>
+                <h1 className="text-5xl font-bold text-brand-text font-serif text-center mb-12">Shop Our Collection</h1>
+                
+                <div className="flex justify-center flex-wrap gap-3 mb-12">
+                    {categories.map(category => (
+                        <button 
+                            key={category.id}
+                            onClick={() => setSelectedCategoryId(category.id)}
+                            className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+                                String(selectedCategoryId) === String(category.id) 
+                                    ? 'bg-brand-secondary text-brand-bg shadow-md scale-105' 
+                                    : 'bg-brand-primary text-brand-text hover:bg-brand-secondary/20'
+                            }`}
+                        >
+                            {category.name}
+                        </button>
+                    ))}
+                </div>
+            </HeroAnimation>
             
-            <div className="flex justify-center flex-wrap gap-3 mb-12">
-                {categories.map(category => (
-                    <button 
-                        key={category.id}
-                        onClick={() => setSelectedCategoryId(category.id)}
-                        className={`px-6 py-2 rounded-full font-medium transition-colors ${
-                            String(selectedCategoryId) === String(category.id) 
-                                ? 'bg-brand-secondary text-brand-bg' 
-                                : 'bg-brand-primary text-brand-text hover:bg-brand-secondary/20'
-                        }`}
-                    >
-                        {category.name}
-                    </button>
-                ))}
-            </div>
-            
-            <div className={`grid grid-cols-2 sm:grid-cols-2 ${gridColsClass} gap-x-8 gap-y-16 items-stretch`}>
+            <AnimatedProductGrid className={`grid grid-cols-2 sm:grid-cols-2 ${gridColsClass} gap-x-8 gap-y-16 items-stretch`}>
                 {displayProducts.map(item => (
-                    <ProductCard 
-                        key={item.id} 
-                        item={item}
-                        templateName="flara"
-                    />
+                    <AnimatedProductItem key={item.id} id={item.id}>
+                        <ProductCard 
+                            item={item}
+                            templateName="flara"
+                        />
+                    </AnimatedProductItem>
                 ))}
-            </div>
+            </AnimatedProductGrid>
             {displayProducts.length === 0 && (
                 <p className="text-center text-brand-text/70 text-lg">No products found in this category.</p>
             )}

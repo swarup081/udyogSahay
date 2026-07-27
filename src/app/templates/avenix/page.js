@@ -5,6 +5,7 @@ import {
     ProductCard 
 } from './components.js'; 
 import Link from 'next/link';
+import { HeroAnimation, ScrollSection, StaggerGrid, StaggerItem, FloatingElement } from '@/components/ui/TemplateAnimation';
 import { Editable } from '@/components/editor/Editable'; // --- IMPORT EDITABLE ---
 
 // Helper: Get product details from the master list by their IDs
@@ -168,7 +169,7 @@ const HeelsHero = ({ heroData }) => {
                     {/* --- CHANGED: Grid cols 2 on ALL screens for shrink effect --- */}
                     <div className="grid grid-cols-2 gap-4 md:gap-16 items-center w-full">
                         {/* 1. Text Content (Left) */}
-                        <div className="text-left font-sans">
+                        <HeroAnimation direction="up" delay={0.1} className="text-left font-sans">
                             <h2 className="text-[7vw] md:text-6xl lg:text-7xl font-serif font-medium text-brand-text leading-tight">
                             {heroData.line1}
                             <br />
@@ -211,9 +212,9 @@ const HeelsHero = ({ heroData }) => {
                             <span className="w-1.5 h-1.5 md:w-2.5 md:h-2.5 bg-white rounded-full"></span>
                             {heroData.buttonText}
                             </a>
-                        </div>
+                        </HeroAnimation>
                         {/* 2. Image: Split rounded placeholder (Right) */}
-                        <div className="relative w-full h-[40vw] md:h-96 mx-auto">
+                        <HeroAnimation direction="left" delay={0.25} className="relative w-full h-[40vw] md:h-96 mx-auto">
                             {/* Left half */}
                             <div className="absolute left-0 top-0 w-[100%] h-full rounded-bl-[60px] rounded-t-[60px] md:rounded-bl-[120px] md:rounded-t-[120px] overflow-hidden">
                                 <img 
@@ -222,7 +223,7 @@ const HeelsHero = ({ heroData }) => {
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                        </div>
+                        </HeroAnimation>
                     </div>
                 </div>
             </section>
@@ -263,7 +264,7 @@ export default function AvenixPage() {
                 
                {/* --- 2. About Section --- */}
                <Editable focusId="about">
-                <section id="story" className="py-12 md:py-24 overflow-hidden bg-brand-primary w-full"> 
+                <ScrollSection direction="up" id="story" className="py-12 md:py-24 overflow-hidden bg-brand-primary w-full"> 
                         <div className="container mx-auto px-4 md:px-6 w-full max-w-full overflow-hidden">
                             
                             <div className="mb-12 md:mb-24">
@@ -317,12 +318,12 @@ export default function AvenixPage() {
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
 
                 {/* --- 3. Featured Products / Collection (NOW DYNAMIC) --- */}
                 <Editable focusId="collection">
-                    <section id="collection" className="py-12 md:py-24 w-full overflow-hidden"> 
+                    <ScrollSection direction="up" id="collection" className="py-12 md:py-24 w-full overflow-hidden"> 
                         <div className="container mx-auto px-4 md:px-6 text-center w-full max-w-full overflow-hidden">
                             <p className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans font-medium text-brand-text/70">
                                 {businessData.featured.sectionHeading}
@@ -367,15 +368,19 @@ export default function AvenixPage() {
                                             <h3 className="text-[3vw] md:text-2xl font-serif font-medium mt-2 md:mt-6">{item.name}</h3>
                                             
                                             {!isCategory && (
-                                                <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-1">
-                                                    ₹{item.price.toFixed(2)}
-                                                </p>
+                                                <p className="text-[2.5vw] md:text-lg text-brand-text font-sans font-medium mt-1 md:mt-2">₹{item.price.toFixed(2)}</p>
                                             )}
                                             
-                                            <div className="flex flex-col sm:flex-row items-center gap-2 md:gap-4 mt-2 md:mt-6 pb-2 md:pb-6 px-2 md:px-6">
-                                                <Link href={href} className="w-full btn-primary bg-brand-secondary text-brand-bg px-2 py-2 md:px-6 md:py-3 font-sans font-medium text-[2vw] md:text-sm uppercase tracking-wider rounded-xl md:rounded-3xl text-center hover:opacity-80">
-                                                    {btnText}
-                                                </Link>
+                                            <div className="mt-2 md:mt-6 px-1 md:px-4 pb-4">
+                                                {isCategory ? (
+                                                    <Link href={href} className="w-full block bg-brand-primary text-brand-text px-4 py-2 md:px-6 md:py-3 font-sans font-medium text-[2.5vw] md:text-sm uppercase tracking-wider rounded-xl md:rounded-3xl text-center hover:bg-gray-200">
+                                                        {btnText}
+                                                    </Link>
+                                                ) : (
+                                                    <Link href={href} className="w-full block bg-brand-secondary text-brand-bg px-4 py-2 md:px-6 md:py-3 font-sans font-medium text-[2.5vw] md:text-sm uppercase tracking-wider rounded-xl md:rounded-3xl text-center hover:opacity-80">
+                                                        {btnText}
+                                                    </Link>
+                                                )}
                                                 {!isCategory && (
                                                     <Link href={href} className="hidden md:block w-full btn-secondary bg-white text-brand-secondary border border-brand-text/20 px-6 py-3 font-sans font-medium text-sm uppercase tracking-wider rounded-3xl text-center hover:bg-gray-50">
                                                         Learn More
@@ -387,12 +392,12 @@ export default function AvenixPage() {
                                 );
                             })}
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
                 
                 {/* --- 4. CTA Section (ID ADDED) --- */}
                 <Editable focusId="cta">
-                    <section id="cta" className="py-12 md:py-24 overflow-hidden w-full">
+                    <ScrollSection direction="up" id="cta" className="py-12 md:py-24 overflow-hidden w-full">
                         <div className="container mx-auto px-4 md:px-6 grid grid-cols-2 gap-4 md:gap-16 items-center w-full max-w-full overflow-hidden">
                             <div className="text-left">
                                 <h2 className="text-[6vw] md:text-6xl font-serif font-medium text-brand-text max-w-lg leading-tight">
@@ -427,13 +432,13 @@ export default function AvenixPage() {
                                 </div>
                             </div> 
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
 
 
                 {/* --- 6. Brands Section --- */}
                 {businessData.brands.logos.length > 0 && (
-                    <section className="py-8 md:py-16 w-full overflow-hidden">
+                    <ScrollSection direction="up" className="py-8 md:py-16 w-full overflow-hidden">
                         <div className="container mx-auto px-4 md:px-6 text-center w-full max-w-full overflow-hidden">
                             <h2 className="text-[5vw] md:text-4xl font-serif font-medium text-brand-text max-w-2xl mx-auto">{businessData.brands.heading}</h2>
                             <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-2 md:mt-6 max-w-xl mx-auto">{businessData.brands.text}</p>
@@ -443,12 +448,12 @@ export default function AvenixPage() {
                                 ))}
                             </div>
                         </div>
-                    </section>
+                    </ScrollSection>
                 )}
 
                 {/* --- Other Sections --- */}
 
-                <section className="py-12 md:py-24 w-full overflow-hidden">
+                <ScrollSection direction="up" className="py-12 md:py-24 w-full overflow-hidden">
                     <div className="container mx-auto px-4 md:px-6 grid grid-cols-2 gap-4 md:gap-16 w-full max-w-full">
                         {businessData.features.map(feature => (
                             <div key={feature.title} className="p-4 md:p-10 bg-brand-primary rounded-xl md:rounded-2xl">
@@ -462,30 +467,31 @@ export default function AvenixPage() {
                             </div>
                         ))}
                     </div>
-                </section>
+                </ScrollSection>
                 
                 {/* --- New Arrivals (NOW DYNAMIC) --- */}
                 <Editable focusId="products">
-                    <section id="shop" className="py-12 md:py-24 w-full overflow-hidden">
+                    <ScrollSection direction="up" id="shop" className="py-12 md:py-24 w-full overflow-hidden">
                         <div className="container mx-auto px-4 md:px-6 text-center w-full max-w-full overflow-hidden">
                             <p className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans opacity-70">{businessData.newArrivals.heading}</p>
                             <h2 className="text-[6vw] md:text-5xl font-serif font-medium text-brand-text mt-2 md:mt-4">{businessData.newArrivals.title}</h2>
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-8 md:gap-y-16 mt-8 md:mt-16 items-start">
+                            <StaggerGrid className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-8 md:gap-y-16 mt-8 md:mt-16 items-start">
                                 {newArrivalsProducts.map(item => (
-                                    <ProductCard 
-                                        key={item.id} 
-                                        item={item}
-                                        templateName="avenix"
-                                    />
+                                    <StaggerItem key={item.id}>
+                                        <ProductCard 
+                                            item={item}
+                                            templateName="avenix"
+                                        />
+                                    </StaggerItem>
                                 ))}
-                            </div>
+                            </StaggerGrid>
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
 
                 {/* --- Stats Section (ID ADDED) --- */}
                 <Editable focusId="stats">
-                    <section id="stats" className="py-12 md:py-24 w-full overflow-hidden">
+                    <ScrollSection direction="up" id="stats" className="py-12 md:py-24 w-full overflow-hidden">
                         <div className="container mx-auto px-4 md:px-6 grid grid-cols-2 gap-4 md:gap-16 items-center w-full max-w-full overflow-hidden">
                             <div className="text-left">
                                 <h2 className="text-[6vw] md:text-5xl font-serif font-medium text-brand-text">{businessData.stats.title}</h2>
@@ -503,11 +509,11 @@ export default function AvenixPage() {
                                 ))}
                             </div>
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
 
                 <Editable focusId="blog">
-                    <section id="blogs" className="py-12 md:py-24 bg-brand-primary w-full overflow-hidden">
+                    <ScrollSection direction="up" id="blogs" className="py-12 md:py-24 bg-brand-primary w-full overflow-hidden">
                         <div className="container mx-auto px-4 md:px-6 w-full max-w-full overflow-hidden">
                             <div className="text-center mb-8 md:mb-16">
                                 <p className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans opacity-70">{businessData.blog.heading}</p>
@@ -534,7 +540,7 @@ export default function AvenixPage() {
                                 )}
                             </div>
                         </div>
-                    </section>
+                    </ScrollSection>
                 </Editable>
             </main>
         </>

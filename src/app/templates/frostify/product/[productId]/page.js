@@ -8,6 +8,7 @@ import { useCart } from '../../cartContext.js';
 import { ProductCard } from '../../components.js';
 import { fetchSuggestedProducts } from '@/app/actions/recommendations';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HeroAnimation, ScrollSection, StaggerGrid, StaggerItem } from '@/components/ui/TemplateAnimation';
 
 export default function FrostifyProductPage() {
     const { productId } = useParams();
@@ -15,7 +16,6 @@ export default function FrostifyProductPage() {
     const { addToCart } = useCart();
     const [quantity, setQuantity] = useState(1);
     const [relatedProducts, setRelatedProducts] = useState([]);
-    const [selectedImage, setSelectedImage] = useState('');
     const [selectedVariants, setSelectedVariants] = useState({});
 
     const product = businessData.allProducts.find(p => p.id.toString() === productId);
@@ -48,9 +48,11 @@ export default function FrostifyProductPage() {
         }
     };
 
+    const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+    const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+
     useEffect(() => {
         if (product) {
-            setSelectedImage(product.image);
             if (product.variants && Array.isArray(product.variants)) {
                 const defaults = {};
                 product.variants.forEach(v => {
@@ -70,7 +72,6 @@ export default function FrostifyProductPage() {
         const loadSuggestions = async () => {
              if (product) {
                  if (websiteId) {
-                     // Request 2-8
                      const suggestions = await fetchSuggestedProducts(websiteId, product, 2, 8);
                      if (suggestions && suggestions.length > 0) {
                          setRelatedProducts(suggestions);
@@ -79,7 +80,7 @@ export default function FrostifyProductPage() {
                  }
                  
                  const local = businessData.allProducts
-                    .filter(p => p.category === product.category && String(p.id) !== String(product.id))
+                    .filter(p => String(p.category) === String(product.category) && String(p.id) !== String(product.id))
                     .slice(0, 4);
                  setRelatedProducts(local);
              }
@@ -87,38 +88,41 @@ export default function FrostifyProductPage() {
         loadSuggestions();
     }, [product, websiteId, businessData.allProducts]);
 
-    if (!product) return <div className="py-32 text-center text-[var(--color-primary)]">Product not found.</div>;
+    if (!product) {
+        return (
+            <div className="container mx-auto px-6 py-32 text-center">
+                <h1 className="text-4xl font-serif text-[var(--color-primary)] mb-4">Product Not Found</h1>
+                <a href="../shop" className="text-[var(--color-secondary)] underline">Back to Shop</a>
+            </div>
+        );
+    }
 
     const handleAddToCart = () => {
-        addToCart({ ...product, selectedVariants }, quantity);
+        addToCart({
+            ...product,
+            selectedVariants
+        }, quantity);
     };
 
     const handleVariantChange = (name, value) => {
         setSelectedVariants(prev => ({ ...prev, [name]: value }));
     };
 
-    // Carousel Logic
-    const nextImage = () => {
-        setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
-    };
-    const prevImage = () => {
-        setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
-    };
-
-    // Stock
+    // Stock safe check
     const rawStock = product?.stock;
     const isUnlimited = rawStock === -1;
     const stock = isUnlimited ? Infinity : (rawStock || 0);
     const isOutOfStock = !isUnlimited && stock === 0;
 
+    const variants = Array.isArray(product.variants) ? product.variants : [];
+
     return (
-        <div className="bg-white min-h-screen pt-24 md:pt-32 pb-12 md:pb-24 w-full max-w-full overflow-hidden overflow-x-hidden">
-            <div className="container mx-auto px-6">
-                
-                {/* Main Product Display: 1 Col on mobile, 2 on Desktop */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-start mb-12 md:mb-24">
+        <div className="bg-white min-h-screen">
+            <div className="container mx-auto px-6 py-12 md:py-24">
+                <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
+                    
                     {/* Gallery (Carousel) */}
-                    <div className="flex flex-col gap-4">
+                    <StaggerItem className="flex flex-col gap-4">
                         <div 
                             className="bg-[#F9F4F6] rounded-2xl overflow-hidden shadow-lg aspect-square relative max-h-[60vh] md:max-h-[600px] w-full max-w-md mx-auto md:max-w-none md:mx-0 group"
                             onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
@@ -141,80 +145,98 @@ export default function FrostifyProductPage() {
                                         onClick={prevImage}
                                         className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[var(--color-primary)] p-2 rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
-                                        <ChevronLeft size={24} />
+                                        <ChevronLeft size={20} />
                                     </button>
                                     <button 
                                         onClick={nextImage}
                                         className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[var(--color-primary)] p-2 rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
-                                        <ChevronRight size={24} />
+                                        <ChevronRight size={20} />
                                     </button>
-                                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                                         {allImages.map((_, idx) => (
-                                            <div 
+                                            <button 
                                                 key={idx}
-                                                className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-[var(--color-primary)] w-4' : 'bg-gray-300'}`}
+                                                onClick={() => setCurrentImageIndex(idx)} 
+                                                className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-[var(--color-primary)] w-4' : 'bg-[var(--color-primary)]/40'}`} 
                                             />
                                         ))}
                                     </div>
                                 </>
                             )}
                         </div>
-                    </div>
-                    
-                    {/* Info */}
-                    <div>
+
+                        {/* Thumbnails */}
+                        {allImages.length > 1 && (
+                            <div className="flex gap-4 overflow-x-auto pb-2">
+                                {allImages.map((img, idx) => (
+                                    <button 
+                                        key={idx} 
+                                        onClick={() => setCurrentImageIndex(idx)}
+                                        className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${currentImageIndex === idx ? 'border-[var(--color-primary)] scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                    >
+                                        <img src={img} alt="" className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </StaggerItem>
+
+                    {/* Product Info */}
+                    <StaggerItem className="flex flex-col">
                         {category && (
-                            <span className="text-[var(--color-secondary)] text-xs font-bold uppercase tracking-[0.2em] block mb-2">
+                            <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]/50 mb-2 block">
                                 {category.name}
                             </span>
                         )}
-                        <h1 className="text-4xl md:text-5xl font-serif text-[var(--color-primary)] mb-2 md:mb-6 leading-tight">{product.name}</h1>
-                        <p className="text-3xl text-[var(--color-primary)] font-bold mb-4 md:mb-8">₹{product.price.toFixed(2)}</p>
-                        
-                         {/* Variants */}
-                         {product.variants && product.variants.length > 0 && (
-                            <div className="mb-8 space-y-4">
-                                {product.variants.map((v, idx) => {
-                                    const rawValues = v.values.split(',').map(s => s.trim());
+                        <h1 className="text-[7vw] md:text-4xl font-serif text-[var(--color-primary)] mb-4">{product.name}</h1>
+                        <p className="text-xl md:text-2xl font-bold text-[var(--color-primary)] mb-6">₹{product.price.toFixed(2)}</p>
+
+                        {/* Dynamic Variants */}
+                        {variants.length > 0 && (
+                            <div className="mb-6 space-y-4 border-t border-b border-gray-100 py-4">
+                                {variants.map((v, i) => {
+                                    const values = v.values.split(',').map(s => s.trim()).filter(Boolean);
+                                    if (values.length === 0) return null;
+
                                     return (
-                                        <div key={idx}>
-                                            <span className="text-xs font-bold text-[var(--color-primary)]/50 uppercase tracking-widest block mb-2">{v.name}</span>
+                                        <div key={i}>
+                                            <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]/70 block mb-2">{v.name}: <span className="text-[var(--color-primary)] font-normal">{selectedVariants[v.name]}</span></span>
                                             <div className="flex flex-wrap gap-2">
-                                                {v.type === 'color' ? (
-                                                    rawValues.map(valStr => {
-                                                        const [hex, name] = valStr.split(':');
-                                                        const colorName = name || hex;
-                                                        const isSelected = selectedVariants[v.name] === hex;
+                                                {values.map((val, idx) => {
+                                                    let label = val;
+                                                    let colorCode = null;
+                                                    if (v.type === 'color') {
+                                                        const parts = val.split(':');
+                                                        label = parts[0];
+                                                        colorCode = parts[1] || parts[0];
+                                                    }
+                                                    const isSelected = selectedVariants[v.name] === label;
+
+                                                    if (v.type === 'color' && colorCode) {
                                                         return (
                                                             <button
-                                                                key={hex}
-                                                                onClick={() => handleVariantChange(v.name, hex)}
-                                                                className={`w-10 h-10 rounded-full border-2 transition-all relative group ${isSelected ? 'border-[var(--color-primary)] ring-1 ring-[var(--color-primary)] ring-offset-2' : 'border-transparent hover:scale-110'}`}
-                                                                style={{ backgroundColor: hex }}
-                                                                title={colorName}
-                                                            >
-                                                                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-[var(--color-primary)] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity z-10">
-                                                                    {colorName}
-                                                                </span>
-                                                            </button>
+                                                                key={idx}
+                                                                type="button"
+                                                                onClick={() => handleVariantChange(v.name, label)}
+                                                                className={`w-8 h-8 rounded-full border-2 transition-all ${isSelected ? 'border-[var(--color-primary)] scale-110 shadow' : 'border-transparent opacity-80 hover:opacity-100'}`}
+                                                                style={{ backgroundColor: colorCode }}
+                                                                title={label}
+                                                            />
                                                         );
-                                                    })
-                                                ) : (
-                                                    rawValues.map(opt => (
+                                                    }
+
+                                                    return (
                                                         <button
-                                                            key={opt}
-                                                            onClick={() => handleVariantChange(v.name, opt)}
-                                                            className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
-                                                                selectedVariants[v.name] === opt
-                                                                    ? 'bg-[var(--color-secondary)] text-white border-[var(--color-secondary)]'
-                                                                    : 'bg-white border-[var(--color-primary)]/20 text-[var(--color-primary)] hover:border-[var(--color-secondary)]'
-                                                            }`}
+                                                            key={idx}
+                                                            type="button"
+                                                            onClick={() => handleVariantChange(v.name, label)}
+                                                            className={`px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-widest transition-all ${isSelected ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white' : 'border-gray-200 text-gray-600 hover:border-gray-400'}`}
                                                         >
-                                                            {opt}
+                                                            {label}
                                                         </button>
-                                                    ))
-                                                )}
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     );
@@ -222,7 +244,7 @@ export default function FrostifyProductPage() {
                             </div>
                         )}
                         
-                        <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex flex-col md:flex-row gap-4 mt-6">
                             <div className={`flex items-center border border-[var(--color-primary)] rounded-full px-2 h-12 w-full md:w-32 justify-center ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
                                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 text-lg text-[var(--color-primary)] font-bold hover:bg-gray-50 rounded-full">-</button>
                                 <span className="px-3 text-lg text-[var(--color-primary)] font-bold w-10 text-center">{quantity}</span>
@@ -244,17 +266,21 @@ export default function FrostifyProductPage() {
                                 <p className="text-gray-600 leading-relaxed text-lg">{product.description}</p>
                             </div>
                         )}
-                    </div>
-                </div>
+                    </StaggerItem>
+                </StaggerGrid>
 
                 {/* Related Products */}
                 {relatedProducts.length > 0 && (
-                    <div className="border-t border-gray-100 pt-8 md:pt-16">
+                    <ScrollSection direction="up" className="border-t border-gray-100 pt-8 md:pt-16 mt-12 md:mt-24">
                         <h2 className="text-[6vw] md:text-3xl font-serif text-[var(--color-primary)] text-center mb-6 md:mb-12">You Might Also Like</h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-                            {relatedProducts.map(p => <ProductCard key={p.id} item={p} />)}
-                        </div>
-                    </div>
+                        <StaggerGrid className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+                            {relatedProducts.map(p => (
+                                <StaggerItem key={p.id}>
+                                    <ProductCard item={p} />
+                                </StaggerItem>
+                            ))}
+                        </StaggerGrid>
+                    </ScrollSection>
                 )}
             </div>
         </div>
