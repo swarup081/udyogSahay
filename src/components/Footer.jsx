@@ -11,7 +11,7 @@ const footerData = [
       { name: "Website Templates", href: "/templates" },
       { name: "Pricing", href: "/pricing" },
       { name: "Login", href: "/sign-in" },
-      { name: "Start Free Trial", href: "/get-started" },
+      { name: "Start for free", href: "/templates" },
     ]
   },
   {

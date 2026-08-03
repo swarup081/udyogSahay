@@ -3,7 +3,7 @@ export default function robots() {
       rules: {
         userAgent: '*',
         allow: '/',
-        disallow: ['/dashboard/', '/api/', '/editor/', '/checkout/', '/preview/', '/test-skeleton/', '/get-started/'],
+        disallow: ['/dashboard/', '/api/', '/editor/', '/checkout/', '/preview/', '/test-skeleton/', '/templates/'],
       },
       sitemap: 'https://bizvistar.in/sitemap.xml',
     }

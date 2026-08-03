@@ -118,7 +118,7 @@ export default function TemplatePreviewPage() {
             {/* Action Button (Pushed to the right) */}
             <div className="flex items-center gap-4">
                  <p className="text-sm text-gray-500 hidden sm:block">No credit card required*</p>
-                 <Link href={`/get-started`}>
+                 <Link href={`/templates`}>
                     <button className="px-5 py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors">
                         Start Editing
                     </button>

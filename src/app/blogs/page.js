@@ -113,7 +113,7 @@ export default function BlogPage() {
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-normal tracking-tight text-gray-900 mb-6 md:mb-8 max-w-2xl leading-tight z-10">
               Create a website<br />that can do it all
             </h2>
-            <Link href="/get-started" className="z-10">
+            <Link href="/templates" className="z-10">
               <button className="px-8 py-4 bg-black text-white text-lg font-medium rounded-full hover:bg-gray-800 transition-colors shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
                 Start Now
               </button>

@@ -256,10 +256,10 @@ export default function NewHeader() {
                     Log in
                   </Link>
                   <Link
-                    href="/get-started"
+                    href="/templates"
                     className="bg-[#000] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#000] transition-all hover:scale-105 shadow-md active:scale-95"
                   >
-                    Start free trial
+                    Start for free
                   </Link>
                 </>
               )}
@@ -344,11 +344,11 @@ export default function NewHeader() {
                           Log in
                         </Link>
                         <Link
-                          href="/get-started"
+                          href="/templates"
                           className="w-full text-center py-3 bg-[#000] text-white rounded-lg font-bold hover:bg-[#000] transition-colors shadow-sm"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          Start free trial
+                          Start for free
                         </Link>
                       </>
                     )}

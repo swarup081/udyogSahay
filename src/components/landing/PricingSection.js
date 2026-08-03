@@ -233,7 +233,7 @@ function PricingContent() {
             Get a mobile-friendly website with built-in marketing and 24/7 support <br></br>everything you need to start and grow          </p>
 
           <div className="flex justify-center">
-            <Link href="/get-started">
+            <Link href="/templates">
               <button className="px-10 py-4 bg-[#000] text-white text-lg font-bold rounded-2xl transition-all hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-3 active:scale-95">
                 Start for Free
                 <motion.span

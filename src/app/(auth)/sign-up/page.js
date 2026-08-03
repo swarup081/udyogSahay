@@ -76,7 +76,7 @@ function SignUpForm() {
       if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
         router.push(redirect);
       } else {
-        router.push('/get-started');
+        router.push('/templates');
       }
     } else {
        setLoading(false);

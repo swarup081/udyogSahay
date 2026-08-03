@@ -14,7 +14,7 @@ export default async function sitemap() {
   const staticRoutes = [
     '',
     '/pricing',
-    '/get-started',
+    '/templates',
     '/templates',
   ].map((route) => ({
     url: `${baseUrl}${route}`,

@@ -60,7 +60,7 @@ export default function LandingPage() {
                 className="w-34 pt-20 mr-0"
               />
 
-              <Link href="/get-started">
+              <Link href="/templates">
                 <button className="px-10 py-4 bg-[#8A63D2] text-white text-lg font-bold rounded-2xl hover:bg-[#7554b3] transition-all hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-2 active:scale-95">
                   Build website
                 </button>
@@ -92,7 +92,7 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="flex justify-start w-[60%]">
-                  <Link href="/get-started" className="w-full pr-4">
+                  <Link href="/templates" className="w-full pr-4">
                     <button className="w-full px-2 py-3.5 bg-[#8A63D2] text-white text-base font-bold rounded-2xl shadow-xl active:scale-95 flex items-center justify-center">
                       Build website
                     </button>

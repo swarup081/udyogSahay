@@ -89,7 +89,7 @@ export default function BenefitsSection() {
 
         {/* --- Bottom CTA Button --- */}
         <div className="flex justify-center">
-          <Link href="/get-started">
+          <Link href="/templates">
             <button className="px-10 py-4 bg-[#000] text-white mt-20 md:mt-10 text-lg font-bold rounded-2xl transition-all hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-3 active:scale-95">
             Build your website
               <motion.span

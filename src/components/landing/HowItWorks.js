@@ -50,7 +50,7 @@ export default function HowItWorks() {
               </p>
 
               <div className="flex items-center gap-6">
-                <Link href="/get-started">
+                <Link href="/templates">
                   <button className="px-8 py-3.5 bg-black text-white text-[16px] font-medium rounded-full hover:bg-gray-800 transition-colors">
                     Get Started
                   </button>
