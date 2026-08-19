@@ -88,8 +88,8 @@ export async function syncWebsiteDataClient(websiteId) {
         const newData = {
             ...currentData,
             allProducts: mappedProducts,
-            // Only update categories if we have some, otherwise keep existing or empty
-            categories: mappedCategories.length > 0 ? mappedCategories : (currentData.categories || [])
+            // Update categories with what is in the DB (even if empty) to ensure sample categories are removed
+            categories: mappedCategories
         };
 
         const { error: updateError } = await supabase

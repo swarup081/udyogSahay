@@ -94,6 +94,24 @@ function mergeWithDefaults(userData, defaultData) {
     return merged;
 }
 
+// --- Helper: Scrubber for legacy sample data ---
+function sanitizeData(data, templateName) {
+    if (!data) return data;
+    const templateOriginals = templateDataMap[templateName] || {};
+    
+    // Clean up legacy sample products that leaked into drafts
+    if (data.allProducts && templateOriginals.allProducts) {
+        const isSample = (p) => templateOriginals.allProducts.some(orig => String(orig.id) === String(p.id) && orig.name === p.name);
+        data.allProducts = data.allProducts.filter(p => !isSample(p));
+    }
+    
+    // Clean up legacy sample categories
+    if (data.categories && templateOriginals.categories) {
+        const isSampleCat = (c) => templateOriginals.categories.some(orig => String(orig.id) === String(c.id) && orig.name === c.name);
+        data.categories = data.categories.filter(c => !isSampleCat(c));
+    }
+    return data;
+}
 
 // Main component updated to read site_id
 export default function EditorLayout({ templateName, mode, websiteId: propWebsiteId, initialData, siteSlug, syncVersion = 0, isPublished: initialIsPublished = false }) {
@@ -126,6 +144,109 @@ export default function EditorLayout({ templateName, mode, websiteId: propWebsit
   const [editorSiteSlug, setEditorSiteSlug] = useState(siteSlug || null);
   const debounceTimer = useRef(null);
   const dbDataLoaded = useRef(false);
+
+  const editorDataKey = propWebsiteId ? `editorData_${propWebsiteId}` : `editorData_${templateName}`;
+  const cartDataKey = `${templateName}Cart`; 
+
+  function sendDataToIframe(data) {
+    if (iframeRef.current && data) {
+      iframeRef.current.contentWindow.postMessage({
+        type: 'UPDATE_DATA',
+        payload: data,
+      }, '*');
+    }
+  }
+
+
+
+
+  // State for dynamic scaling
+  const [desktopScale, setDesktopScale] = useState(1);
+  const [mobileScale, setMobileScale] = useState(1);
+  const [isMobileViewport, setIsMobileViewport] = useState(false); // Safe SSR State
+  const mainContainerRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Safe check for mobile viewport
+      const isMobile = window.innerWidth < 1024;
+      setIsMobileViewport(isMobile);
+
+      const container = mainContainerRef.current;
+      if (!container) return;
+
+      const containerWidth = container.offsetWidth;
+      const containerHeight = container.offsetHeight;
+
+      // 1. Desktop View Scaling (on Mobile)
+      if (view === 'desktop' && isMobile) {
+        // Scale 1024px to fit within the container width (minus padding)
+        const scale = Math.min(1, (containerWidth - 40) / 1024);
+        setDesktopScale(scale);
+      } else {
+        setDesktopScale(1);
+      }
+
+      // 2. Mobile View Scaling (on Desktop/Laptop)
+      if (view === 'mobile') {
+        // Scale 812px height to fit within container height (minus vertical padding)
+        // We want some breathing room (e.g. 40px top + 40px bottom = 80px)
+        const availableHeight = containerHeight - 80;
+        const scale = Math.min(1, availableHeight / 812);
+        setMobileScale(scale);
+      } else {
+        setMobileScale(1);
+      }
+    };
+
+    // Run on mount
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [view]);
+
+  const defaultData = useMemo(() => {
+    const data = JSON.parse(JSON.stringify(templateDataMap[templateName] || {}));
+    
+    // STRIP OUT sample products and categories in the editor.
+    // They are only meant for the pure template preview (/preview).
+    // In the editor (and live site), users should only see their own products.
+    data.allProducts = [];
+    data.categories = [];
+    
+    return data;
+  }, [templateName]);
+
+  const [businessData, setBusinessData] = useState(() => {
+     // Priority: initialData (from DB) > defaultData
+     let dataToMerge = sanitizeData(initialData ? JSON.parse(JSON.stringify(initialData)) : null, templateName);
+     
+     let data = dataToMerge ? mergeWithDefaults(dataToMerge, defaultData) : defaultData;
+     
+     // Inject storeName from Get Started if available and we are starting fresh (using defaultData)
+     if (!initialData && typeof window !== 'undefined') {
+         const storedName = localStorage.getItem('storeName');
+         if (storedName && storedName !== 'My New Site') {
+             data = {
+                 ...data,
+                 name: storedName,
+                 logoText: storedName,
+                 // Update footer copyright if it exists
+                 footer: data.footer ? {
+                     ...data.footer,
+                     copyright: data.footer.copyright 
+                        ? data.footer.copyright.replace(/202[0-9] [A-Za-z]+,/, `202${new Date().getFullYear().toString().slice(-1)} ${storedName},`) 
+                        : `© ${new Date().getFullYear()} ${storedName},`
+                 } : undefined
+             };
+         }
+     }
+     return data;
+  });
+  
+  const [history, setHistory] = useState([businessData]);
+  const [historyIndex, setHistoryIndex] = useState(0);
 
   // --- PARALLEL INIT: Run onboarding + draft load + subscription check simultaneously ---
   useEffect(() => {
@@ -177,89 +298,7 @@ export default function EditorLayout({ templateName, mode, websiteId: propWebsit
     };
 
     parallelInit();
-  }, [websiteId, mode]);
-
-  const editorDataKey = `editorData_${templateName}_${websiteId || 'new'}`;
-  const cartDataKey = `${templateName}Cart`; 
-  
-  // State for dynamic scaling
-  const [desktopScale, setDesktopScale] = useState(1);
-  const [mobileScale, setMobileScale] = useState(1);
-  const [isMobileViewport, setIsMobileViewport] = useState(false); // Safe SSR State
-  const mainContainerRef = useRef(null);
-
-  useEffect(() => {
-    const handleResize = () => {
-      // Safe check for mobile viewport
-      const isMobile = window.innerWidth < 1024;
-      setIsMobileViewport(isMobile);
-
-      const container = mainContainerRef.current;
-      if (!container) return;
-
-      const containerWidth = container.offsetWidth;
-      const containerHeight = container.offsetHeight;
-
-      // 1. Desktop View Scaling (on Mobile)
-      if (view === 'desktop' && isMobile) {
-        // Scale 1024px to fit within the container width (minus padding)
-        const scale = Math.min(1, (containerWidth - 40) / 1024);
-        setDesktopScale(scale);
-      } else {
-        setDesktopScale(1);
-      }
-
-      // 2. Mobile View Scaling (on Desktop/Laptop)
-      if (view === 'mobile') {
-        // Scale 812px height to fit within container height (minus vertical padding)
-        // We want some breathing room (e.g. 40px top + 40px bottom = 80px)
-        const availableHeight = containerHeight - 80;
-        const scale = Math.min(1, availableHeight / 812);
-        setMobileScale(scale);
-      } else {
-        setMobileScale(1);
-      }
-    };
-
-    // Run on mount
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [view]);
-
-  const defaultData = useMemo(() => {
-    return JSON.parse(JSON.stringify(templateDataMap[templateName] || {}));
-  }, [templateName]);
-
-  const [businessData, setBusinessData] = useState(() => {
-     // Priority: initialData (from DB) > defaultData
-     // FIX: Merge initialData with defaultData to ensure all keys exist
-     let data = initialData ? mergeWithDefaults(initialData, defaultData) : defaultData;
-     
-     // Inject storeName from Get Started if available and we are starting fresh (using defaultData)
-     if (!initialData && typeof window !== 'undefined') {
-         const storedName = localStorage.getItem('storeName');
-         if (storedName && storedName !== 'My New Site') {
-             data = {
-                 ...data,
-                 name: storedName,
-                 logoText: storedName,
-                 // Update footer copyright if it exists
-                 footer: data.footer ? {
-                     ...data.footer,
-                     copyright: data.footer.copyright 
-                        ? data.footer.copyright.replace(/202[0-9] [A-Za-z]+,/, `202${new Date().getFullYear().toString().slice(-1)} ${storedName},`) 
-                        : `© ${new Date().getFullYear()} ${storedName},`
-                 } : undefined
-             };
-         }
-     }
-     return data;
-  });
-  
-  const [history, setHistory] = useState([businessData]);
-  const [historyIndex, setHistoryIndex] = useState(0);
+  }, [websiteId, mode, defaultData, editorDataKey]);
 
   // Load data
   useEffect(() => {
@@ -267,7 +306,7 @@ export default function EditorLayout({ templateName, mode, websiteId: propWebsit
       // We prioritize localStorage to keep unsaved changes
       const savedData = localStorage.getItem(editorDataKey);
       if (savedData) {
-        const parsedData = JSON.parse(savedData);
+        const parsedData = sanitizeData(JSON.parse(savedData), templateName);
         // FIX: Merge saved data with defaults too
         const merged = mergeWithDefaults(parsedData, defaultData);
         setBusinessData(merged); 
@@ -276,7 +315,8 @@ export default function EditorLayout({ templateName, mode, websiteId: propWebsit
       } else if (initialData) {
          // If we have initialData passed prop (e.g. from Dashboard), use it.
          // Already merged in useState, but good to be explicit if props change
-         const merged = mergeWithDefaults(initialData, defaultData);
+         const sanitized = sanitizeData(JSON.parse(JSON.stringify(initialData)), templateName);
+         const merged = mergeWithDefaults(sanitized, defaultData);
          setBusinessData(merged);
          setHistory([merged]);
          setHistoryIndex(0);
@@ -444,14 +484,14 @@ useEffect(() => {
       return result;
   };
 
-  const sendDataToIframe = (data) => {
+  function sendDataToIframe(data) {
     if (iframeRef.current && data) {
       iframeRef.current.contentWindow.postMessage({
         type: 'UPDATE_DATA',
         payload: data,
       }, '*');
     }
-  };
+  }
 
   // Send data to iframe immediately on initial load and when businessData changes (debounced)
   useEffect(() => {

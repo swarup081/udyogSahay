@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import { businessData as initialBusinessData } from './data.js';
@@ -12,30 +12,16 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 import OfferPopup from '@/components/editor/OfferPopup';
 import { getBasePath } from '@/app/templates/getBasePath';
 
-function FlavorNestLayout({ children, serverData, websiteId }) { // 1. Accept serverData
-    const [businessData, setBusinessData] = useState(serverData || initialBusinessData); // 2. Use serverData
+// --- 1. State Provider: Manages businessData state + TemplateContext ---
+function FlavorNestStateProvider({ children, serverData, websiteId }) {
+    const [businessData, setBusinessData] = useState(serverData || initialBusinessData);
     const router = useRouter();
     const pathname = usePathname();
 
     const basePath = getBasePath('flavornest', serverData, pathname);
-    
-    const { 
-        cartCount, 
-        isCartOpen, 
-        closeCart, 
-        openCart, 
-        showToast,
-        cartDetails,
-        subtotal,
-        shipping,
-        total,
-        increaseQuantity,
-        decreaseQuantity,
-        removeFromCart
-    } = useCart();
 
     useEffect(() => {
-        if (serverData) return; // 3. Add this line
+        if (serverData) return;
 
         document.body.style.fontFamily = `'${businessData.theme.font.body}', sans-serif`;
         const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
@@ -117,7 +103,33 @@ function FlavorNestLayout({ children, serverData, websiteId }) { // 1. Accept se
             document.body.style.fontFamily = '';
             document.body.classList.remove(`theme-${businessData.theme.colorPalette}`);
         };
-    }, [businessData.theme.font.body, businessData.theme.font.heading, businessData.theme.colorPalette, router, serverData]); // 4. Add serverData
+    }, [businessData.theme.font.body, businessData.theme.font.heading, businessData.theme.colorPalette, router, serverData]);
+
+    return (
+        <TemplateContext.Provider value={{ businessData, setBusinessData, websiteId, basePath }}>
+            {children}
+        </TemplateContext.Provider>
+    );
+}
+
+// --- 2. Content Component: Uses both TemplateContext + Cart ---
+function FlavorNestContent({ children }) {
+    const { businessData, websiteId, basePath } = useContext(TemplateContext);
+    
+    const { 
+        cartCount, 
+        isCartOpen, 
+        closeCart, 
+        openCart, 
+        showToast,
+        cartDetails,
+        subtotal,
+        shipping,
+        total,
+        increaseQuantity,
+        decreaseQuantity,
+        removeFromCart
+    } = useCart();
 
     const createFontVariable = (fontName) => `var(--font-${fontName.toLowerCase().replace(' ', '-')})`;
     
@@ -129,7 +141,6 @@ function FlavorNestLayout({ children, serverData, websiteId }) { // 1. Accept se
     const themeClassName = `theme-${businessData.theme.colorPalette}`;
     
     return (
-        <TemplateContext.Provider value={{ businessData, setBusinessData, websiteId, basePath }}>
             <div 
               className={`antialiased font-sans bg-brand-bg text-brand-text ${themeClassName}`}
               style={fontVariables}
@@ -229,16 +240,17 @@ function FlavorNestLayout({ children, serverData, websiteId }) { // 1. Accept se
                 </div>
                 <WhatsAppButton businessData={businessData} />
             </div>
-        </TemplateContext.Provider>
     );
 }
 
-// 5. Accept serverData
+// --- 3. Root Layout: Correct nesting order ---
+// TemplateContext.Provider → CartProvider → Content
 export default function RootLayout({ children, serverData, websiteId }) {
     return (
-        <CartProvider>
-            {/* 6. Pass serverData down */}
-            <FlavorNestLayout serverData={serverData} websiteId={websiteId}>{children}</FlavorNestLayout>
-        </CartProvider>
+        <FlavorNestStateProvider serverData={serverData} websiteId={websiteId}>
+            <CartProvider>
+                <FlavorNestContent>{children}</FlavorNestContent>
+            </CartProvider>
+        </FlavorNestStateProvider>
     );
 }

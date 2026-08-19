@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { businessData } from './data.js';
+import { useTemplateContext } from './templateContext.js';
 
 const CartContext = createContext();
 
@@ -9,6 +9,8 @@ export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]); 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
+
+  const { businessData } = useTemplateContext();
 
   // Load cart from localStorage
   useEffect(() => {

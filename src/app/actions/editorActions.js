@@ -53,7 +53,7 @@ async function resyncProductsIntoWebsiteData(supabaseAdmin, websiteId) {
     const newData = {
       ...currentData,
       allProducts: mappedProducts,
-      categories: mappedCategories.length > 0 ? mappedCategories : (currentData.categories || [])
+      categories: mappedCategories
     };
 
     await supabaseAdmin

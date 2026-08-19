@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { businessData } from '../data.js';
+import { useTemplateContext } from '../templateContext.js';
 import { ProductCard } from '../components.js';
 import { sortProducts } from '@/lib/templates/templateLogic';
 import { HeroAnimation, AnimatedProductGrid, AnimatedProductItem } from '@/components/ui/TemplateAnimation';
 
 export default function ShopPage() {
+    const { businessData } = useTemplateContext();
     const [selectedCategoryId, setSelectedCategoryId] = useState('all');
     
     const allProducts = businessData.allProducts; 
