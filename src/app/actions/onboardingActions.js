@@ -416,11 +416,12 @@ export async function generateAIContent(description, templateName = null) {
         
         const { data: website } = await supabaseAdmin
             .from('websites')
-            .select('website_data')
+            .select('website_data, draft_data')
             .eq('id', websiteId)
             .single();
 
-        const currentData = website?.website_data || {};
+        // Always prioritize draft_data since AI generation happens in the editor before publishing
+        const currentData = website?.draft_data || website?.website_data || {};
 
         // Step 1: Strip all image/URL fields so AI never sees them
         const { stripped, imageMap } = stripImageFields(currentData);
@@ -474,9 +475,10 @@ ${JSON.stringify(stripped)}
         // Step 5: Force-restore all original images/URLs (final safety net)
         const finalData = restoreImageFields(mergedData, imageMap);
 
+        // Update draft_data so it reflects in the editor until the user explicitly publishes
         await supabaseAdmin
             .from('websites')
-            .update({ website_data: finalData })
+            .update({ draft_data: finalData })
             .eq('id', websiteId);
 
         return { success: true, data: finalData };
