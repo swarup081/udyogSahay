@@ -60,7 +60,7 @@ export const Header = ({ business, cartCount, onCartClick }) => {
                     {business.logoText}
                 </a>
                 <nav className="hidden md:flex space-x-10">
-                    {business?.navigation?.map(navItem => (
+                    {(Array.isArray(business?.navigation) ? business.navigation : []).map(navItem => (
                         <a 
                           key={navItem.label} 
                           href={resolveLink(navItem.href)} 
@@ -99,7 +99,7 @@ export const ProductCard = ({ item, templateName }) => { // templateName is actu
         }
     };
     
-    const category = businessData?.categories?.find(c => c.id === item.category);
+    const category = (Array.isArray(businessData?.categories) ? businessData.categories : []).find(c => c.id === item.category);
     const productUrl = `${basePath && basePath !== '.' ? basePath : ''}/product/${item.id}`;
 
     return (
@@ -202,7 +202,7 @@ export const Footer = () => {
                 <div>
                     <h4 className="text-lg font-bold font-serif mb-4 uppercase tracking-wider">About</h4>
                     <ul className="space-y-2">
-                        {businessData?.footer?.links?.about?.map(link => (
+                        {(Array.isArray(businessData?.footer?.links?.about) ? businessData.footer.links.about : []).map(link => (
                             <li key={link.name}>
                                 <a href={resolveLink(link.url)} className="text-brand-bg/70 hover:text-brand-bg">{link.name}</a>
                             </li>
@@ -213,7 +213,7 @@ export const Footer = () => {
                 <div className="lg:col-auto text-right md:text-left">
                     <h4 className="text-lg font-bold font-serif mb-4 uppercase tracking-wider">Get Help</h4>
                     <ul className="space-y-2">
-                        {businessData?.footer?.links?.getHelp?.map(link => (
+                        {(Array.isArray(businessData?.footer?.links?.getHelp) ? businessData.footer.links.getHelp : []).map(link => (
                             <li key={link.name}>
                                 <a href={resolveLink(link.url)} className="text-brand-bg/70 hover:text-brand-bg">{link.name}</a>
                             </li>
@@ -224,7 +224,7 @@ export const Footer = () => {
                 <div className="hidden lg:block">
                     <h4 className="text-lg font-bold font-serif mb-4 uppercase tracking-wider">Categories</h4>
                     <ul className="space-y-2">
-                        {businessData?.footer?.links?.categories?.map(link => (
+                        {(Array.isArray(businessData?.footer?.links?.categories) ? businessData.footer.links.categories : []).map(link => (
                             <li key={link.name}>
                                 <a href={resolveLink(link.url)} className="text-brand-bg/70 hover:text-brand-bg">{link.name}</a>
                             </li>

@@ -235,7 +235,7 @@ export const Footer = () => {
 
                 <div className="mt-12 flex justify-center gap-4 text-[10px] opacity-60">
                     {/* Render Socials from Data Array */}
-                    {(businessData.footer?.socials || []).map((social, idx) => {
+                    {(Array.isArray(businessData.footer?.socials) ? businessData.footer.socials : []).map((social, idx) => {
                         let Icon = Instagram;
                         if (social.platform === 'FB') Icon = Facebook;
                         if (social.platform === 'TK') Icon = Twitter; // Mapping TK (TikTok usually) to Twitter icon for now as per previous code, or just generic. Keeping consistent.

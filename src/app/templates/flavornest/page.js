@@ -59,7 +59,7 @@ export default function FlavorNestPage() {
                     <div className="container mx-auto px-6">
                         <h2 className="text-4xl font-bold text-center text-brand-secondary mb-12 font-serif">{businessData.menu.title}</h2>
                         <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {signatureProducts.map(item => (
+                            {(Array.isArray(signatureProducts) ? signatureProducts : []).map(item => (
                                 <StaggerItem key={item.id}>
                                     <ProductCard 
                                         item={item} 
@@ -82,7 +82,7 @@ export default function FlavorNestPage() {
                     <div className="container mx-auto px-6">
                         <h2 className="text-4xl font-bold text-center text-brand-secondary mb-12 font-serif">{businessData.reviews?.title}</h2>
                         <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {(businessData.reviews?.items || []).map((review, index) => (
+                            {(Array.isArray(businessData.reviews?.items) ? businessData.reviews.items : []).map((review, index) => (
                                 <StaggerItem key={index} className="bg-white p-6 rounded-lg shadow-md border border-brand-primary">
                                     <p className="italic">"{review.text}"</p>
                                     <p className="mt-4 font-bold text-brand-secondary text-right">- {review.author}</p>

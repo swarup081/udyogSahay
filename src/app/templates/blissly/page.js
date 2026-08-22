@@ -88,7 +88,7 @@ export default function BrewhavenPage() {
                     <div className="container mx-auto px-4 md:px-6">
                         <h2 className="text-[6vw] md:text-5xl font-bold text-brand-text text-center mb-8 md:mb-16">{businessData.events.title}</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
-                            {businessData?.events?.items?.map((item, index) => (
+                            {(Array.isArray(businessData?.events?.items) ? businessData.events.items : []).map((item, index) => (
                                 <div key={index} className={`bg-brand-primary rounded-lg overflow-hidden shadow-sm flex flex-col ${index >= 2 ? 'hidden md:flex' : ''}`}>
                                     <img src={item.image} alt={item.title} className="w-full h-[20vw] md:h-48 object-cover"/>
                                     <div className="p-3 md:p-8 flex flex-col flex-grow">
@@ -125,7 +125,7 @@ export default function BrewhavenPage() {
                         <h2 className="text-[5vw] md:text-5xl font-bold text-brand-text leading-tight"> {businessData.about.title}</h2>
                         <p className="text-[2.5vw] md:text-lg text-brand-text opacity-70 mt-2 md:mt-6 max-w-lg leading-tight">{businessData.about.text}</p>
                         <div className="mt-4 md:mt-8 space-y-3 md:space-y-6">
-                            {businessData?.about?.features?.map((feature, index) => (
+                            {(Array.isArray(businessData?.about?.features) ? businessData.about.features : []).map((feature, index) => (
                                 <div key={index}>
                                     <h4 className="text-[3vw] md:text-xl font-bold text-brand-text">{feature.title}</h4>
                                     <p className="text-brand-text opacity-70 mt-0.5 md:mt-1 text-[2vw] md:text-base leading-tight">{feature.text}</p>
@@ -154,7 +154,7 @@ export default function BrewhavenPage() {
                             <p className="text-[2.5vw] md:text-lg text-brand-text opacity-70">{businessData.menu.description}</p>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-2 gap-x-4 md:gap-x-12 gap-y-4 md:gap-y-8 max-w-4xl mx-auto">
-                            {businessData?.menu?.items?.map((item, index) => (
+                            {(Array.isArray(businessData?.menu?.items) ? businessData.menu.items : []).map((item, index) => (
                                 <div key={index} className="py-2 md:py-4">
                                     <div className="flex justify-between items-baseline mb-1 md:mb-2">
                                         <h4 className="text-[3vw] md:text-2xl font-bold text-brand-text truncate pr-1">{item.name}</h4>

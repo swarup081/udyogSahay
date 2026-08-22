@@ -100,7 +100,7 @@ export default function FrostifyPage() {
                     <div className="container mx-auto px-6">
                         <h2 className="text-[6vw] md:text-4xl font-serif text-center mb-8 md:mb-16 text-white">{businessData.specialties?.title}</h2>
                         <StaggerGrid className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 max-w-6xl mx-auto">
-                          {(businessData.specialties?.items || []).map((item, index) => {
+                          {(Array.isArray(businessData.specialties?.items) ? businessData.specialties.items : []).map((item, index) => {
                               const shapes = [
                                   "rounded-r-full rounded-tl-full",
                                   "rounded-t-full",
@@ -130,7 +130,7 @@ export default function FrostifyPage() {
                         
                         {/* Grid of Cards */}
                         <StaggerGrid className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-                            {getProductsByIds(businessData.allProducts, businessData.gallery?.items || []).map((item) => (
+                            {getProductsByIds(businessData.allProducts, Array.isArray(businessData.gallery?.items) ? businessData.gallery.items : []).map((item) => (
                                 <StaggerItem key={item.id}>
                                     <ProductCard item={item} />
                                 </StaggerItem>
@@ -161,7 +161,7 @@ export default function FrostifyPage() {
 
                         {/* Mobile: Infinite Slider (1 item) */}
                         <div className="block md:hidden relative h-[300px]"> {/* Fixed height container for slider */}
-                            {(businessData.testimonials?.items || []).map((testimonial, index) => (
+                            {(Array.isArray(businessData.testimonials?.items) ? businessData.testimonials.items : []).map((testimonial, index) => (
                                 <div 
                                     key={index} 
                                     className={`absolute top-0 left-0 w-full transition-opacity duration-1000 ease-in-out ${index === currentReview ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
@@ -197,7 +197,7 @@ export default function FrostifyPage() {
 
                         {/* Desktop: Grid (3 items) */}
                         <div className="hidden md:grid grid-cols-3 gap-8">
-                            {(businessData.testimonials?.items || []).map((testimonial, index) => (
+                            {(Array.isArray(businessData.testimonials?.items) ? businessData.testimonials.items : []).map((testimonial, index) => (
                                 <div key={index} className="bg-white p-8 rounded-tl-[40px] rounded-br-[40px] shadow-sm hover:shadow-md transition-shadow relative">
                                     <div className="absolute -top-4 -right-4 w-10 h-10 bg-[var(--color-secondary)] rounded-full flex items-center justify-center">
                                         <span className="text-white text-2xl font-serif">”</span>
@@ -236,7 +236,7 @@ export default function FrostifyPage() {
                         <div className="text-center mb-8 md:mb-12">
                             <h2 className="text-[6vw] md:text-3xl font-serif text-[var(--color-primary)]">{businessData.faq?.title}</h2>
                         </div>
-                        {(businessData.faq?.questions || []).map((q, i) => (
+                        {(Array.isArray(businessData.faq?.questions) ? businessData.faq.questions : []).map((q, i) => (
                             <FAQItem key={i} question={q.q} answer={q.a} />
                         ))}
                     </div>

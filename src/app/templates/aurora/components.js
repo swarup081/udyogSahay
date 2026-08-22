@@ -367,7 +367,7 @@ export const Footer = () => {
                     <div className="col-span-1">
                         <h4 className="text-[2.5vw] md:text-xs font-bold uppercase tracking-widest mb-4 md:mb-6 text-[var(--color-dark)]">Explore</h4>
                         <ul className="space-y-3 md:space-y-4 text-[2.5vw] md:text-xs font-medium tracking-wide text-[var(--color-text-light)] uppercase">
-                            {businessData.footer?.links?.main?.map(link => (
+                            {(Array.isArray(businessData.footer?.links?.main) ? businessData.footer.links.main : []).map(link => (
                                 <li key={link.name}><a href={resolveLink(link.url)} className="hover:text-[var(--color-dark)] transition-colors">{link.name}</a></li>
                             ))}
                         </ul>
@@ -376,7 +376,7 @@ export const Footer = () => {
                      <div className="col-span-1">
                         <h4 className="text-[2.5vw] md:text-xs font-bold uppercase tracking-widest mb-4 md:mb-6 text-[var(--color-dark)]">Legal</h4>
                         <ul className="space-y-3 md:space-y-4 text-[2.5vw] md:text-xs font-medium tracking-wide text-[var(--color-text-light)] uppercase">
-                             {businessData.footer?.links?.utility?.map(link => (
+                             {(Array.isArray(businessData.footer?.links?.utility) ? businessData.footer.links.utility : []).map(link => (
                                 <li key={link.name}><a href={resolveLink(link.url)} className="hover:text-[var(--color-dark)] transition-colors">{link.name}</a></li>
                             ))}
                         </ul>

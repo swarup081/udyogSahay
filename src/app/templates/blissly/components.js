@@ -70,7 +70,7 @@ export const Header = ({ business, cartCount, onCartClick }) => {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center relative">
             {/* Left Nav */}
             <nav className="hidden md:flex items-center gap-6">
-                {business?.navigation?.map(navItem => (
+                {(Array.isArray(business?.navigation) ? business.navigation : []).map(navItem => (
                     <a key={navItem.label} href={resolveLink(navItem.href)} className="text-sm font-medium tracking-wide text-brand-text hover:opacity-70 transition-opacity">
                         {navItem.label}
                     </a>
@@ -118,7 +118,7 @@ export const ProductCard = ({ item, templateName }) => {
         }
     };
     
-    const category = businessData?.categories?.find(c => c.id === item.category);
+    const category = (Array.isArray(businessData?.categories) ? businessData.categories : []).find(c => c.id === item.category);
     const productUrl = `${basePath && basePath !== '.' ? basePath : ''}/product/${item.id}`;
 
     return (
@@ -230,7 +230,7 @@ export const Footer = () => {
                     <div>
                         <h4 className="text-[2.5vw] md:text-sm font-semibold mb-3 md:mb-5 uppercase tracking-wider">Page Links</h4>
                         <ul className="space-y-2 md:space-y-3 text-[2.5vw] md:text-sm">
-                            {businessData.footer.links?.pages?.map(link => (
+                            {(Array.isArray(businessData?.footer?.links?.pages) ? businessData.footer.links.pages : []).map(link => (
                                 <li key={link.name}>
                                     <a href={resolveLink(link.url)} className="text-brand-text/70 hover:text-brand-text transition-colors">{link.name}</a>
                                 </li>
@@ -242,7 +242,7 @@ export const Footer = () => {
                     <div>
                         <h4 className="text-[2.5vw] md:text-sm font-semibold mb-3 md:mb-5 uppercase tracking-wider">Utility Links</h4>
                         <ul className="space-y-2 md:space-y-3 text-[2.5vw] md:text-sm">
-                            {businessData.footer.links?.utility?.map(link => (
+                            {(Array.isArray(businessData?.footer?.links?.utility) ? businessData.footer.links.utility : []).map(link => (
                                 <li key={link.name}>
                                     <a href={resolveLink(link.url)} className="text-brand-text/70 hover:text-brand-text transition-colors">{link.name}</a>
                                 </li>

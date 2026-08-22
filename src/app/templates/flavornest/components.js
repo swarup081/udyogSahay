@@ -23,7 +23,7 @@ export const Header = ({ business, cartCount, onCartClick }) => {
                 <h1 className="text-2xl font-bold text-brand-secondary font-serif">{business.logoText}</h1>
             </a>
             <nav className="hidden md:flex space-x-8">
-                {business?.navigation?.map(navItem => (
+                {(Array.isArray(business?.navigation) ? business.navigation : []).map(navItem => (
                     <a key={navItem.label} href={resolveLink(navItem.href)} className="inactive-nav hover:active-nav transition-colors">{navItem.label}</a>
                 ))}
             </nav>

@@ -412,7 +412,7 @@ export default function AvenixPage() {
                                 </a>
                                 
                                 <div className="flex gap-2 md:gap-6 mt-6 md:mt-16">
-                                    {businessData?.ctaSection?.icons?.map((icon, i) => (
+                                    {(Array.isArray(businessData?.ctaSection?.icons) ? businessData.ctaSection.icons : []).map((icon, i) => (
                                         <div key={i} className="bg-white p-0 border border-brand-text/10 rounded-lg md:rounded-2xl w-[15vw] h-[15vw] md:w-32 md:h-32 flex items-center justify-center">
                                             <img src={icon.image} alt={`Icon ${i+1}`} className="w-full h-full object-contain" />
                                         </div>
@@ -443,7 +443,7 @@ export default function AvenixPage() {
                             <h2 className="text-[5vw] md:text-4xl font-serif font-medium text-brand-text max-w-2xl mx-auto">{businessData?.brands?.heading}</h2>
                             <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-2 md:mt-6 max-w-xl mx-auto">{businessData?.brands?.text}</p>
                             <div className="flex flex-wrap justify-center items-center gap-x-4 md:gap-x-12 gap-y-2 md:gap-y-6 mt-8 md:mt-16 opacity-70">
-                                {businessData?.brands?.logos?.map((logo, i) => (
+                                {(Array.isArray(businessData?.brands?.logos) ? businessData.brands.logos : []).map((logo, i) => (
                                     <span key={i} className="text-[3vw] md:text-2xl font-bold text-brand-text italic">{logo}</span>
                                 ))}
                             </div>
@@ -455,7 +455,7 @@ export default function AvenixPage() {
 
                 <ScrollSection direction="up" className="py-12 md:py-24 w-full overflow-hidden">
                     <div className="container mx-auto px-4 md:px-6 grid grid-cols-2 gap-4 md:gap-16 w-full max-w-full">
-                        {businessData?.features?.map((feature, i) => (
+                        {(Array.isArray(businessData?.features) ? businessData.features : []).map((feature, i) => (
                             <div key={i} className="p-4 md:p-10 bg-brand-primary rounded-xl md:rounded-2xl">
                                 <h3 className="text-[4vw] md:text-4xl font-serif font-medium">{feature.title}</h3>
                                 <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-2 md:mt-6">{feature.text}</p>
@@ -501,7 +501,7 @@ export default function AvenixPage() {
                                 </a>
                             </div>
                             <div className="flex flex-row gap-2 md:gap-8">
-                                {businessData?.stats?.items?.map((stat, i) => (
+                                {(Array.isArray(businessData?.stats?.items) ? businessData.stats.items : []).map((stat, i) => (
                                     <div key={i} className="flex-1 text-center p-4 md:p-8 bg-brand-primary rounded-xl md:rounded-2xl">
                                         <p className="text-[8vw] md:text-6xl font-serif font-medium text-brand-text">{stat.number}</p>
                                         <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-2 md:mt-4">{stat.label}</p>

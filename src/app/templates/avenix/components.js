@@ -66,7 +66,7 @@ export const Header = ({ cartCount, onCartClick }) => {
             <div className="container mx-auto px-4 md:px-6 py-4 md:py-6 flex justify-between items-center relative">
                 {/* Left Nav */}
                 <nav className="hidden md:flex items-center gap-8">
-                    {businessData?.navigation?.main?.map(navItem => (
+                    {(Array.isArray(businessData?.navigation?.main) ? businessData.navigation.main : []).map(navItem => (
                         <a key={navItem.label} href={resolveLink(navItem.href)} className="text-sm font-medium tracking-widest uppercase text-brand-text hover:opacity-70 transition-opacity">
                             {navItem.label}
                         </a>
@@ -83,7 +83,7 @@ export const Header = ({ cartCount, onCartClick }) => {
                  {/* Right Nav & Icons */}
                 <div className="flex-1 flex justify-end items-center gap-4 md:gap-8">
                     <nav className="hidden md:flex items-center gap-8">
-                        {businessData?.navigation?.secondary?.map(navItem => (
+                        {(Array.isArray(businessData?.navigation?.secondary) ? businessData.navigation.secondary : []).map(navItem => (
                             <a key={navItem.label} href={resolveLink(navItem.href)} className="text-sm font-medium tracking-widest uppercase text-brand-text hover:opacity-70 transition-opacity">
                                 {navItem.label}
                             </a>
@@ -238,7 +238,7 @@ export const Footer = () => {
                         
                         {/* NEW: Social Icons */}
                         <div className="flex items-center gap-4 md:gap-5">
-                            {businessData?.footer?.socials?.map((social) => (
+                            {(Array.isArray(businessData?.footer?.socials) ? businessData.footer.socials : []).map((social) => (
                                 social.url && social.url !== "#" && (
                                     <a 
                                         key={social.platform} 
@@ -259,7 +259,7 @@ export const Footer = () => {
                     <div>
                         <h4 className="text-[2.5vw] md:text-sm font-semibold mb-2 md:mb-5 uppercase tracking-wider">LINKS</h4>
                         <ul className="space-y-1 md:space-y-3 text-[2.5vw] md:text-sm">
-                            {businessData?.footer?.links?.main?.map(link => (
+                            {(Array.isArray(businessData?.footer?.links?.main) ? businessData.footer.links.main : []).map(link => (
                                 <li key={link.name}>
                                     <a href={resolveLink(link.url)} className="text-brand-bg/70 hover:text-brand-bg transition-colors">{link.name}</a>
                                 </li>
@@ -271,7 +271,7 @@ export const Footer = () => {
                     <div>
                         <h4 className="text-[2.5vw] md:text-sm font-semibold mb-2 md:mb-5 uppercase tracking-wider">UTILITY PAGES</h4>
                         <ul className="space-y-1 md:space-y-3 text-[2.5vw] md:text-sm">
-                            {businessData?.footer?.links?.utility?.map(link => (
+                            {(Array.isArray(businessData?.footer?.links?.utility) ? businessData.footer.links.utility : []).map(link => (
                                 <li key={link.name}>
                                     <a href={resolveLink(link.url)} className="text-brand-bg/70 hover:text-brand-bg transition-colors">{link.name}</a>
                                 </li>
