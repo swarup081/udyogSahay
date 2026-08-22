@@ -571,27 +571,72 @@ export default function EditorSidebar({
   };
 
   // --- NEW: Sync handler for Business Name and Logo Text ---
+  // Deep replace: when the business name changes, find every text field in the
+  // data tree that contains the OLD name and swap it for the NEW name. This way
+  // "ABOUT AVENIX" automatically becomes "ABOUT MyShop", "Avenix in Numbers"
+  // becomes "MyShop in Numbers", etc. Because the fields stay individually
+  // editable, users can still customise any specific text afterward.
   const handleSyncedNameChange = (newValue) => {
     setBusinessData((prev) => {
       const newData = JSON.parse(JSON.stringify(prev));
+      const oldName = prev.logoText || prev.name || '';
 
-      // Sync both fields
-      newData.name = newValue;
-      newData.logoText = newValue;
+      // Helper: recursively walk the object and replace oldName → newValue
+      // in every string value. Skips keys that look like URLs/images/IDs.
+      const SKIP_KEYS = new Set([
+        'image', 'image1', 'image2', 'imageUrl', 'logo', 'logoUrl', 'url',
+        'href', 'src', 'icon', 'link', 'madeByLink', 'id', 'category',
+        'colorPalette', 'platform', 'type', 'path', 'accentColor',
+        'buttonColor', 'mode', 'upiId',
+      ]);
+
+      const deepReplace = (obj) => {
+        if (!obj || typeof obj !== 'object') return obj;
+        if (Array.isArray(obj)) return obj.map(deepReplace);
+        const result = {};
+        for (const [key, val] of Object.entries(obj)) {
+          if (typeof val === 'string' && !SKIP_KEYS.has(key) && oldName) {
+            // Case-insensitive replace of old name with new value
+            const regex = new RegExp(oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+            result[key] = val.replace(regex, (match) => {
+              // Preserve casing: if the matched text was ALL CAPS, make replacement ALL CAPS
+              if (match === match.toUpperCase()) return newValue.toUpperCase();
+              return newValue;
+            });
+          } else if (typeof val === 'object' && val !== null) {
+            result[key] = deepReplace(val);
+          } else {
+            result[key] = val;
+          }
+        }
+        return result;
+      };
+
+      // Only do the deep-replace if we have a meaningful old name to swap
+      const replaced = oldName && oldName.length > 1 ? deepReplace(newData) : newData;
+
+      // Force-set the canonical fields
+      replaced.name = newValue;
+      replaced.logoText = newValue;
 
       // Also update copyright string intelligently
-      if (newData.footer?.copyright) {
+      if (replaced.footer?.copyright) {
         const year = new Date().getFullYear();
-        // Handle different copyright formats
-        if (newData.footer.copyright.includes('All Rights Reserved')) {
-          newData.footer.copyright = `© ${year} ${newValue}. All Rights Reserved`;
-        } else if (newData.footer.copyright.endsWith(',')) {
-          newData.footer.copyright = `© ${year} ${newValue},`;
+        if (replaced.footer.copyright.includes('All Rights Reserved')) {
+          replaced.footer.copyright = `© ${year} ${newValue}. All Rights Reserved`;
+        } else if (replaced.footer.copyright.endsWith(',')) {
+          replaced.footer.copyright = `© ${year} ${newValue},`;
         } else {
-          newData.footer.copyright = `© ${year} ${newValue}.`;
+          replaced.footer.copyright = `© ${year} ${newValue}.`;
         }
       }
-      return newData;
+
+      // Update footer logo text too
+      if (replaced.footer) {
+        replaced.footer.logo = newValue.toUpperCase();
+      }
+
+      return replaced;
     });
   };
 

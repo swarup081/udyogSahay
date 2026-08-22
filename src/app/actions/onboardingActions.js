@@ -252,26 +252,58 @@ export async function saveBusinessInfo(data) {
       .single();
 
     const currentData = website?.website_data || {};
+    const oldName = currentData.logoText || currentData.name || '';
+
+    // Deep find-and-replace: swap old business name for new one across all
+    // text content so sections like "ABOUT AVENIX" become "ABOUT MyShop".
+    const SKIP_KEYS = new Set([
+      'image', 'image1', 'image2', 'imageUrl', 'logo', 'logoUrl', 'url',
+      'href', 'src', 'icon', 'link', 'madeByLink', 'id', 'category',
+      'colorPalette', 'platform', 'type', 'path', 'accentColor',
+      'buttonColor', 'mode', 'upiId',
+    ]);
+
+    const deepReplace = (obj, from, to) => {
+      if (!obj || typeof obj !== 'object') return obj;
+      if (Array.isArray(obj)) return obj.map(v => deepReplace(v, from, to));
+      const result = {};
+      for (const [key, val] of Object.entries(obj)) {
+        if (typeof val === 'string' && !SKIP_KEYS.has(key) && from) {
+          const regex = new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+          result[key] = val.replace(regex, (match) => {
+            if (match === match.toUpperCase()) return to.toUpperCase();
+            return to;
+          });
+        } else if (typeof val === 'object' && val !== null) {
+          result[key] = deepReplace(val, from, to);
+        } else {
+          result[key] = val;
+        }
+      }
+      return result;
+    };
+
+    // Apply deep replacement if old name is meaningful
+    const baseData = oldName && oldName.length > 1 && name ? deepReplace(currentData, oldName, name) : currentData;
     
     // Merge updates
     const newData = {
-        ...currentData,
-        name: name || currentData.name,
-        logoText: name || currentData.logoText, // Sync logo text
-        whatsappNumber: whatsappNumber || currentData.whatsappNumber,
-        // Update socials in footer/contact if they exist
+        ...baseData,
+        name: name || baseData.name,
+        logoText: name || baseData.logoText,
+        whatsappNumber: whatsappNumber || baseData.whatsappNumber,
         footer: {
-            ...currentData.footer,
+            ...baseData.footer,
+            logo: name ? name.toUpperCase() : baseData.footer?.logo,
             socials: [
                 { platform: 'Instagram', url: instagram || '' },
                 { platform: 'Facebook', url: facebook || '' },
-                ...(currentData.footer?.socials || []).filter(s => s.platform !== 'Instagram' && s.platform !== 'Facebook')
+                ...(baseData.footer?.socials || []).filter(s => s.platform !== 'Instagram' && s.platform !== 'Facebook')
             ]
         },
-        // Update Hero Logo if applicable (some templates use hero.logo)
         hero: {
-            ...currentData.hero,
-            logo: logoUrl || currentData.hero?.logo
+            ...baseData.hero,
+            logo: logoUrl || baseData.hero?.logo
         }
     };
     
