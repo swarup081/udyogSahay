@@ -21,8 +21,8 @@ export default function CandleaPage() {
     const collectionItems = getLandingItems(businessData, 3);
     const bestSellerItems = getBestSellerItems(businessData, 4);
 
-    if (!businessData || !businessData.hero) {
-        return <div>Loading preview...</div>; 
+    if (!businessData) {
+        return <div>Loading...</div>; 
     }
 
     return (

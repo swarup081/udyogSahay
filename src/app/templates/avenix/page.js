@@ -241,9 +241,9 @@ export default function AvenixPage() {
     // Get businessData from the context
     const { businessData } = useTemplateContext();
 
-    // Guard against undefined properties during initial render or data mismatch
-    if (!businessData || !businessData.heelsHero) {
-        return <div>Loading preview...</div>; 
+    // Guard against undefined properties during initial render
+    if (!businessData) {
+        return <div>Loading...</div>; 
     }
 
     // --- NEW: Dynamic Content using Logic ---
