@@ -254,7 +254,7 @@ export const Footer = () => {
                     })}
                 </div>
                 
-                <p className="text-[10px] mt-4 opacity-50">{businessData.footer.copyright}</p>
+                <p className="text-[10px] mt-4 opacity-50">{"© " + new Date().getFullYear() + " " + (businessData?.logoText || businessData?.name || "Store") + ". All Rights Reserved."}</p>
             </div>
         </footer>
     );

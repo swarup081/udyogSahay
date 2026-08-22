@@ -234,7 +234,7 @@ export const Footer = () => {
             </div>
 
             <div className="text-center border-t border-brand-bg/20 mt-16 pt-8">
-                <p className="text-brand-bg/70">{businessData?.footer?.copyright || "© 2026 Candlea. All Rights Reserved"}</p>
+                <p className="text-brand-bg/70">{"© " + new Date().getFullYear() + " " + (businessData?.logoText || businessData?.name || "Store") + ". All Rights Reserved."}</p>
             </div>
         </div>
     </footer>

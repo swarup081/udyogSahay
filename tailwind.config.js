@@ -8,6 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['var(--font-body)', 'sans-serif'],
+        serif: ['var(--font-heading)', 'serif'],
         times: ['"Times New Roman"', 'Times', 'serif'],
       },
       colors: {

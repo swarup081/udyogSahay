@@ -264,7 +264,7 @@ export const Footer = () => {
 
                 {/* Bottom Footer Bar */}
                 <div className="text-center border-t border-brand-primary/50 mt-8 md:mt-16 pt-4 md:pt-8 text-[2vw] md:text-sm">
-                    <p className="text-brand-text/70">{businessData.footer.copyright}</p>
+                    <p className="text-brand-text/70">{"© " + new Date().getFullYear() + " " + (businessData?.logoText || businessData?.name || "Store") + ". All Rights Reserved."}</p>
                 </div>
             </div>
         </footer>

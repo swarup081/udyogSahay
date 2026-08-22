@@ -282,6 +282,7 @@ export async function POST(req) {
             .from('websites')
             .select('id, website_data, draft_data')
             .eq('user_id', userId)
+            .order('updated_at', { ascending: false })
             .limit(1)
             .maybeSingle();
 

@@ -188,7 +188,7 @@ export default function ProductPage() {
                                                     if (v.type === 'color') {
                                                         const parts = val.split(':');
                                                         label = parts[0];
-                                                        colorCode = parts[1] || parts[0];
+                                                        colorCode = (parts[1] || parts[0]).toLowerCase().replace(/\s+/g, '');
                                                     }
                                                     const isSelected = selectedVariants[v.name] === label;
 

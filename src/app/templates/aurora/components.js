@@ -393,7 +393,7 @@ export const Footer = () => {
                 </div>
                 
                 <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-300 text-[2.5vw] md:text-[10px] text-[var(--color-text-light)] uppercase tracking-[0.2em] font-bold">
-                    <p>{businessData.footer?.copyright}</p>
+                    <p>{"© " + new Date().getFullYear() + " " + (businessData?.logoText || businessData?.name || "Store") + ". All Rights Reserved."}</p>
                     <p>Designed by Bizvistar</p>
                 </div>
             </div>

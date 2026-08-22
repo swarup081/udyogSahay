@@ -29,7 +29,7 @@ async function getUser() {
   return user;
 }
 
-export async function verifyAndPublishUserSite(fallbackSubscriptionId = null) {
+export async function verifyAndPublishUserSite(websiteId, fallbackSubscriptionId = null) {
   try {
     const user = await getUser();
     if (!user) {
@@ -105,18 +105,25 @@ export async function verifyAndPublishUserSite(fallbackSubscriptionId = null) {
     }
 
     // 3. Publish Website
-    const { data: websites, error: webError } = await supabaseAdmin
+    let query = supabaseAdmin
         .from('websites')
         .select('id, draft_data, is_published')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id);
+        
+    if (websiteId) {
+        query = query.eq('id', websiteId);
+    } else {
+        query = query.order('updated_at', { ascending: false });
+    }
+
+    const { data: websites, error: webError } = await query;
 
     if (webError || !websites || websites.length === 0) {
         console.error("[PublishAction] Website not found:", webError);
         return { success: false, error: "Website not found." };
     }
 
-    // Pick the most recent website to publish
+    // Pick the most recent (or specifically requested) website to publish
     const website = websites[0];
 
     if (website.is_published) {

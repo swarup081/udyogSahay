@@ -102,7 +102,7 @@ export const Footer = () => {
     return (
         <footer id="contact" className="bg-brand-secondary text-white py-8"> 
             <div className="container mx-auto px-6 text-center">
-                <p>{businessData.footer.copyright} | Made By <a href={businessData.footer.madeByLink} target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-primary transition-colors">{businessData.footer.madeBy}</a></p>
+                <p>{"© " + new Date().getFullYear() + " " + (businessData?.logoText || businessData?.name || "Store") + ". All Rights Reserved."} | Made By <a href={businessData.footer.madeByLink} target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-primary transition-colors">{businessData.footer.madeBy}</a></p>
                 <p className="mt-2">{businessData.footer.socialText} <a href={businessData.footer.socialLink} target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-primary transition-colors">Instagram</a></p>
             </div>
         </footer>

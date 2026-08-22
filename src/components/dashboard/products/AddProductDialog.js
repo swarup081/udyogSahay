@@ -43,6 +43,8 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
   const [additionalUploading, setAdditionalUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [tempColorHex, setTempColorHex] = useState('#000000');
+  const [tempColorName, setTempColorName] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -198,6 +200,19 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
           variants: prev.variants.filter((_, i) => i !== index)
       }));
   };
+
+  const addColorToVariant = (idx) => {
+      if (!tempColorName.trim()) {
+          alert('Please enter a color name (e.g. Black)');
+          return;
+      }
+      const newColorString = `${tempColorHex}:${tempColorName.trim()}`;
+      const currentValues = formData.variants[idx].values;
+      const newValues = currentValues ? `${currentValues}, ${newColorString}` : newColorString;
+      updateVariant(idx, 'values', newValues);
+      setTempColorName('');
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -517,29 +532,54 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
                                     </button>
                                 </div>
 
-                                <div className="flex gap-2">
-                                    <div className="w-1/3">
-                                        <input 
-                                            placeholder="Name" 
-                                            className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                                            value={variant.name}
-                                            onChange={(e) => updateVariant(idx, 'name', e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <input 
-                                            placeholder={variant.type === 'color' ? "#HEX:Name, #HEX:Name" : "Values (comma separated)"} 
-                                            className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                                            value={variant.values}
-                                            onChange={(e) => updateVariant(idx, 'values', e.target.value)}
-                                        />
-                                        {variant.type === 'color' && (
-                                            <p className="text-[10px] text-gray-400 mt-1">Format: #hex:Name (e.g. #ff0000:Red, #000000:Black)</p>
-                                        )}
+                                    <div className="flex gap-2">
+                                        <div className="w-1/3">
+                                            <input 
+                                                placeholder="Name" 
+                                                className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                                                value={variant.name}
+                                                onChange={(e) => updateVariant(idx, 'name', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <input 
+                                                placeholder={variant.type === 'color' ? "#HEX:Name, #HEX:Name" : "Values (comma separated)"} 
+                                                className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                                                value={variant.values}
+                                                onChange={(e) => updateVariant(idx, 'values', e.target.value)}
+                                            />
+                                            {variant.type === 'color' && (
+                                                <div className="mt-3 p-3 bg-white border border-gray-200 rounded-md shadow-sm">
+                                                    <p className="text-[10px] text-gray-500 font-semibold mb-2 uppercase tracking-wide">Add a Color (Optional UI)</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <input 
+                                                            type="color" 
+                                                            value={tempColorHex}
+                                                            onChange={(e) => setTempColorHex(e.target.value)}
+                                                            className="w-8 h-8 rounded cursor-pointer border-0 p-0"
+                                                            title="Pick a color"
+                                                        />
+                                                        <input 
+                                                            type="text"
+                                                            placeholder="Color Name (e.g. Midnight Blue)"
+                                                            value={tempColorName}
+                                                            onChange={(e) => setTempColorName(e.target.value)}
+                                                            className="flex-1 p-1.5 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:ring-brand-500"
+                                                        />
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => addColorToVariant(idx)}
+                                                            className="px-3 py-1.5 bg-brand-500 text-white text-xs font-semibold rounded-md hover:bg-brand-600 transition-colors"
+                                                        >
+                                                            Add
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
 
                     <div className="space-y-1.5">

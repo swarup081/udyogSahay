@@ -30,6 +30,17 @@ export default function SupportWidget() {
   const [user, setUser] = useState(null);
   const [hoveredPrompt, setHoveredPrompt] = useState(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isClientSite, setIsClientSite] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const isMainDomain = hostname === 'bizvistar.in' || hostname === 'www.bizvistar.in' || hostname === 'app.bizvistar.in' || hostname === 'localhost' || hostname.endsWith('.vercel.app');
+      if (!isMainDomain) {
+         setIsClientSite(true);
+      }
+    }
+  }, []);
   const [dynamicSuggestions, setDynamicSuggestions] = useState([]);
   const [ownerName, setOwnerName] = useState('');
   const [currentLang, setCurrentLang] = useState('en');
@@ -637,7 +648,7 @@ export default function SupportWidget() {
       }
   };
 
-  if (pathname?.startsWith('/site/') || pathname?.startsWith('/preview/') || pathname?.startsWith('/templates/')) {
+  if (isClientSite || pathname?.startsWith('/site/') || pathname?.startsWith('/preview/') || pathname?.startsWith('/templates/')) {
     return null;
   }
 
