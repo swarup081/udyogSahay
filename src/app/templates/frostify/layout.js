@@ -103,7 +103,7 @@ function CartLayout({ children, serverData, websiteId }) {
                                         <div className="flex-grow flex flex-col justify-between py-1">
                                             <div>
                                                 <h4 className="font-serif text-[var(--color-primary)] text-lg leading-tight">{item.name}</h4>
-                                                <p className="text-sm font-bold text-[var(--color-secondary)]">₹{item.price.toFixed(2)}</p>
+                                                <p className="text-sm font-bold text-[var(--color-secondary)]">₹{Number(item.price || 0).toFixed(2)}</p>
                                             </div>
                                             <div className="flex items-center justify-between mt-2">
                                                 <div className="flex items-center border border-gray-200 rounded-full px-2 py-0.5">
@@ -124,7 +124,7 @@ function CartLayout({ children, serverData, websiteId }) {
                             <div className="p-6 border-t border-gray-100 bg-[#F9F4F6]">
                                 <div className="flex justify-between items-center mb-4">
                                     <span className="text-sm text-gray-500 uppercase tracking-widest font-bold">Total</span>
-                                    <span className="text-3xl font-serif text-[var(--color-primary)]">₹{total.toFixed(2)}</span>
+                                    <span className="text-3xl font-serif text-[var(--color-primary)]">₹{Number(total || 0).toFixed(2)}</span>
                                 </div>
                                 <a href={`${basePath}/checkout`} className="block w-full bg-[var(--color-primary)] text-white text-center py-4 rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-[var(--color-secondary)] transition-colors shadow-lg">
                                     Proceed to Checkout
@@ -283,7 +283,7 @@ function FrostifyContent({ children }) {
                                     <div className="flex-grow flex flex-col justify-between py-1">
                                         <div>
                                             <h4 className="font-serif text-[var(--color-primary)] text-lg leading-tight">{item.name}</h4>
-                                            <p className="text-sm font-bold text-[var(--color-secondary)]">₹{item.price.toFixed(2)}</p>
+                                            <p className="text-sm font-bold text-[var(--color-secondary)]">₹{Number(item.price || 0).toFixed(2)}</p>
                                         </div>
                                         <div className="flex items-center justify-between mt-2">
                                             <div className="flex items-center border border-gray-200 rounded-full px-2 py-0.5">
@@ -304,7 +304,7 @@ function FrostifyContent({ children }) {
                         <div className="p-6 border-t border-gray-100 bg-[#F9F4F6]">
                             <div className="flex justify-between items-center mb-4">
                                 <span className="text-sm text-gray-500 uppercase tracking-widest font-bold">Total</span>
-                                <span className="text-3xl font-serif text-[var(--color-primary)]">₹{total.toFixed(2)}</span>
+                                <span className="text-3xl font-serif text-[var(--color-primary)]">₹{Number(total || 0).toFixed(2)}</span>
                             </div>
                             <a href={`${basePath}/checkout`} className="block w-full bg-[var(--color-primary)] text-white text-center py-4 rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-[var(--color-secondary)] transition-colors shadow-lg">
                                 Proceed to Checkout

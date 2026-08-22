@@ -16,6 +16,8 @@ function SignUpForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   
+  const [successMessage, setSuccessMessage] = useState('');
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -42,6 +44,7 @@ function SignUpForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+    setSuccessMessage('');
     
     if (!validateForm()) {
         return;
@@ -49,37 +52,52 @@ function SignUpForm() {
 
     setLoading(true);
     
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
         },
-      },
-    });
-
-    if (error) {
-      setErrorMessage(error.message);
-      setLoading(false);
-    } else if (data.user) {
-      // Create profile record
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        full_name: fullName,
       });
 
-      if (profileError) {
-          console.error("Profile creation failed:", profileError);
+      if (error) {
+        setErrorMessage(error.message);
+        setLoading(false);
+        return;
       }
 
-      if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
-        router.push(redirect);
+      if (data.user) {
+        // Create profile record
+        const { error: profileError } = await supabase.from('profiles').insert({
+          id: data.user.id,
+          full_name: fullName,
+        });
+
+        if (profileError) {
+            console.error("Profile creation failed:", profileError);
+        }
+
+        // Check if we have a session (auto-confirm enabled) or not (email confirmation required)
+        if (data.session) {
+          // Session exists — user is fully authenticated, navigate immediately
+          const destination = (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) 
+            ? redirect 
+            : '/templates';
+          router.replace(destination);
+        } else {
+          // No session — email confirmation is required
+          setLoading(false);
+          setSuccessMessage('Account created! Please check your email to confirm your account, then log in.');
+        }
       } else {
-        router.push('/templates');
+        setLoading(false);
       }
-    } else {
-       setLoading(false);
+    } catch (err) {
+      setErrorMessage('An unexpected error occurred. Please try again.');
+      setLoading(false);
     }
   };
 
@@ -94,6 +112,15 @@ function SignUpForm() {
       {errorMessage && (
         <div className="mb-6 p-4 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200">
           {errorMessage}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="mb-6 p-4 text-sm text-green-700 bg-green-50 rounded-lg border border-green-200">
+          {successMessage}
+          <Link href={signInUrl} className="block mt-2 font-bold text-[#8A63D2] hover:text-[#7c59bd]">
+            Go to Log in →
+          </Link>
         </div>
       )}
 

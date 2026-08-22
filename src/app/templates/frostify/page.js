@@ -21,13 +21,16 @@ export default function FrostifyPage() {
     const { businessData } = useTemplateContext();
     const [currentReview, setCurrentReview] = useState(0);
 
+    const testimonialCount = businessData?.testimonials?.items?.length || 0;
+
     // --- Slider Logic ---
     useEffect(() => {
+        if (testimonialCount <= 1) return;
         const interval = setInterval(() => {
-            setCurrentReview((prev) => (prev + 1) % businessData.testimonials.items.length);
+            setCurrentReview((prev) => (prev + 1) % testimonialCount);
         }, 3000); // Change every 3 seconds
         return () => clearInterval(interval);
-    }, [businessData.testimonials.items.length]);
+    }, [testimonialCount]);
 
     if (!businessData) return <div>Loading...</div>;
 

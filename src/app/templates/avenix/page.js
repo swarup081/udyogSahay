@@ -159,7 +159,7 @@ const getLandingItems = (businessData, requiredCount = 2) => {
 const HeelsHero = ({ heroData }) => {
     const { basePath } = useTemplateContext();
     // Splits the bent text ("HIGH") into an array of letters: ['H', 'I', 'G', 'H']
-    const bentLetters = heroData.bentText.split('');
+    const bentLetters = (heroData?.bentText || '').split('');
 
     return (
         // --- WRAPPED WITH EDITABLE ---
@@ -248,12 +248,12 @@ export default function AvenixPage() {
 
     // --- NEW: Dynamic Content using Logic ---
     // Avenix "Collection" (Featured) takes 2 items (besides the large image)
-    const featuredItems = getProductsByIds(businessData.allProducts, businessData.featured.itemIDs);
+    const featuredItems = getProductsByIds(businessData?.allProducts, businessData?.featured?.itemIDs);
     
     // New Arrivals can still be manual or just latest products. 
     // Keeping it as originally intended (New Arrivals = latest), 
     // or we could apply logic here too. User said "landing page in collection", so I focus on Collection.
-    const newArrivalsProducts = getProductsByIds(businessData.allProducts, businessData.newArrivals.itemIDs);
+    const newArrivalsProducts = getProductsByIds(businessData?.allProducts, businessData?.newArrivals?.itemIDs);
 
     return (
         <> 
@@ -269,30 +269,30 @@ export default function AvenixPage() {
                             
                             <div className="mb-12 md:mb-24">
                                 <h3 className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans font-medium opacity-70">
-                                    {businessData.about.heading}
+                                    {businessData?.about?.heading}
                                 </h3>
                                 
                                 <h2 className="mt-4 text-[5vw] md:text-4xl lg:text-5xl font-serif font-medium text-brand-text leading-tight">
-                                    <span>{businessData.about.subheading.part1}</span>
+                                    <span>{businessData?.about?.subheading?.part1}</span>
                                     
                                     <span className="inline-block w-[15vw] h-[8vw] md:w-38 md:h-20 rounded-full overflow-hidden mx-2 md:mx-5 shadow-md align-middle">
                                         <img 
-                                            src={businessData.about.inlineImages[0]} 
+                                            src={businessData?.about?.inlineImages?.[0]} 
                                             alt="Style 1" 
                                             className="w-full h-full object-cover " 
                                         />
                                     </span>
                                     <span className="inline-block w-[15vw] h-[8vw] md:w-38 md:h-20 rounded-full overflow-hidden mr-1 md:mr-2 shadow-md align-middle">
                                         <img 
-                                            src={businessData.about.inlineImages[1]} 
+                                            src={businessData?.about?.inlineImages?.[1]} 
                                             alt="Style 2" 
                                             className="w-full h-full object-cover" 
                                         />
                                     </span>
-                                    <span>{businessData.about.subheading.part2}</span>
+                                    <span>{businessData?.about?.subheading?.part2}</span>
                                     <span className="inline-block w-[15vw] h-[8vw] md:w-38 md:h-20 rounded-full overflow-hidden ml-1 md:ml-2 shadow-md align-middle">
                                         <img 
-                                            src={businessData.about.inlineImages[2]} 
+                                            src={businessData?.about?.inlineImages?.[2]} 
                                             alt="Style 3" 
                                             className="w-full h-full object-cover" 
                                         />
@@ -304,13 +304,13 @@ export default function AvenixPage() {
                             <div className="grid grid-cols-2 gap-4 md:gap-16 items-center min-h-[200px] md:min-h-[400px]">
                                 <div className="text-left">
                                     <h2 className="text-[4.5vw] md:text-4xl lg:text-5xl font-serif font-medium text-brand-text leading-tight">
-                                        {businessData.about.statement}
+                                        {businessData?.about?.statement}
                                     </h2>
                                 </div>
                                 <div className="flex justify-center md:justify-end">
                                     <div className="w-full max-w-lg h-[40vw] md:h-[300px] overflow-hidden rounded-xl md:rounded-2xl">
                                         <img 
-                                            src={businessData.about.largeImage} 
+                                            src={businessData?.about?.largeImage} 
                                             alt="Avenix hoodies" 
                                             className="w-full h-full object-cover" 
                                         />
@@ -326,10 +326,10 @@ export default function AvenixPage() {
                     <ScrollSection direction="up" id="collection" className="py-12 md:py-24 w-full overflow-hidden"> 
                         <div className="container mx-auto px-4 md:px-6 text-center w-full max-w-full overflow-hidden">
                             <p className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans font-medium text-brand-text/70">
-                                {businessData.featured.sectionHeading}
+                                {businessData?.featured?.sectionHeading}
                             </p>
                             <h2 className="text-[8vw] md:text-6xl font-serif font-medium text-brand-text mt-2 md:mt-4">
-                                {businessData.featured.title} 
+                                {businessData?.featured?.title} 
                             </h2>
                         </div>
                         
@@ -337,7 +337,7 @@ export default function AvenixPage() {
                             
                             <div className="col-span-2 md:col-span-1 h-full">
                                 <img 
-                                    src={businessData.featured.largeImage} 
+                                    src={businessData?.featured?.largeImage} 
                                     alt="Featured Product" 
                                     className="w-full h-[60vw] md:h-full object-cover rounded-xl md:rounded-2xl" 
                                 />
@@ -368,7 +368,7 @@ export default function AvenixPage() {
                                             <h3 className="text-[3vw] md:text-2xl font-serif font-medium mt-2 md:mt-6">{item.name}</h3>
                                             
                                             {!isCategory && (
-                                                <p className="text-[2.5vw] md:text-lg text-brand-text font-sans font-medium mt-1 md:mt-2">₹{item.price.toFixed(2)}</p>
+                                                <p className="text-[2.5vw] md:text-lg text-brand-text font-sans font-medium mt-1 md:mt-2">₹{Number(item.price || 0).toFixed(2)}</p>
                                             )}
                                             
                                             <div className="mt-2 md:mt-6 px-1 md:px-4 pb-4">
@@ -401,18 +401,18 @@ export default function AvenixPage() {
                         <div className="container mx-auto px-4 md:px-6 grid grid-cols-2 gap-4 md:gap-16 items-center w-full max-w-full overflow-hidden">
                             <div className="text-left">
                                 <h2 className="text-[6vw] md:text-6xl font-serif font-medium text-brand-text max-w-lg leading-tight">
-                                    {businessData.ctaSection.title}
+                                    {businessData?.ctaSection?.title}
                                 </h2>
                                 <p className="text-[2.5vw] md:text-xl font-sans text-brand-text/80 mt-2 md:mt-6 max-w-lg">
-                                    {businessData.ctaSection.text}
+                                    {businessData?.ctaSection?.text}
                                 </p>
                                 <a href={`${basePath}/shop`} className="btn-primary inline-flex items-center gap-2 md:gap-3 bg-brand-secondary text-brand-bg px-4 py-2 md:px-8 md:py-4 font-sans font-medium text-[2vw] md:text-base uppercase tracking-wider rounded-full mt-4 md:mt-10 hover:opacity-80">
                                     <span className="w-1.5 h-1.5 md:w-2.5 md:h-2.5 bg-white rounded-full"></span>
-                                    {businessData.ctaSection.cta}
+                                    {businessData?.ctaSection?.cta}
                                 </a>
                                 
                                 <div className="flex gap-2 md:gap-6 mt-6 md:mt-16">
-                                    {businessData.ctaSection.icons.map((icon, i) => (
+                                    {businessData?.ctaSection?.icons?.map((icon, i) => (
                                         <div key={i} className="bg-white p-0 border border-brand-text/10 rounded-lg md:rounded-2xl w-[15vw] h-[15vw] md:w-32 md:h-32 flex items-center justify-center">
                                             <img src={icon.image} alt={`Icon ${i+1}`} className="w-full h-full object-contain" />
                                         </div>
@@ -424,7 +424,7 @@ export default function AvenixPage() {
                                 <div className="w-full max-w-xl h-[50vw] md:h-[850px] border-[1px] md:border-[2px] border-brand-text/30 rounded-full overflow-hidden p-2 md:p-8">
                                     <div className="w-full h-full rounded-full overflow-hidden">
                                         <img 
-                                            src={businessData.ctaSection.image} 
+                                            src={businessData?.ctaSection?.image} 
                                             alt="Explore fashion" 
                                             className="w-full h-full object-cover" 
                                         />
@@ -437,13 +437,13 @@ export default function AvenixPage() {
 
 
                 {/* --- 6. Brands Section --- */}
-                {businessData.brands.logos.length > 0 && (
+                {businessData?.brands?.logos?.length > 0 && (
                     <ScrollSection direction="up" className="py-8 md:py-16 w-full overflow-hidden">
                         <div className="container mx-auto px-4 md:px-6 text-center w-full max-w-full overflow-hidden">
-                            <h2 className="text-[5vw] md:text-4xl font-serif font-medium text-brand-text max-w-2xl mx-auto">{businessData.brands.heading}</h2>
-                            <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-2 md:mt-6 max-w-xl mx-auto">{businessData.brands.text}</p>
+                            <h2 className="text-[5vw] md:text-4xl font-serif font-medium text-brand-text max-w-2xl mx-auto">{businessData?.brands?.heading}</h2>
+                            <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-2 md:mt-6 max-w-xl mx-auto">{businessData?.brands?.text}</p>
                             <div className="flex flex-wrap justify-center items-center gap-x-4 md:gap-x-12 gap-y-2 md:gap-y-6 mt-8 md:mt-16 opacity-70">
-                                {businessData.brands.logos.map((logo, i) => (
+                                {businessData?.brands?.logos?.map((logo, i) => (
                                     <span key={i} className="text-[3vw] md:text-2xl font-bold text-brand-text italic">{logo}</span>
                                 ))}
                             </div>
@@ -455,8 +455,8 @@ export default function AvenixPage() {
 
                 <ScrollSection direction="up" className="py-12 md:py-24 w-full overflow-hidden">
                     <div className="container mx-auto px-4 md:px-6 grid grid-cols-2 gap-4 md:gap-16 w-full max-w-full">
-                        {businessData.features.map(feature => (
-                            <div key={feature.title} className="p-4 md:p-10 bg-brand-primary rounded-xl md:rounded-2xl">
+                        {businessData?.features?.map((feature, i) => (
+                            <div key={i} className="p-4 md:p-10 bg-brand-primary rounded-xl md:rounded-2xl">
                                 <h3 className="text-[4vw] md:text-4xl font-serif font-medium">{feature.title}</h3>
                                 <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-2 md:mt-6">{feature.text}</p>
                                 {feature.cta && (
@@ -473,8 +473,8 @@ export default function AvenixPage() {
                 <Editable focusId="products">
                     <ScrollSection direction="up" id="shop" className="py-12 md:py-24 w-full overflow-hidden">
                         <div className="container mx-auto px-4 md:px-6 text-center w-full max-w-full overflow-hidden">
-                            <p className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans opacity-70">{businessData.newArrivals.heading}</p>
-                            <h2 className="text-[6vw] md:text-5xl font-serif font-medium text-brand-text mt-2 md:mt-4">{businessData.newArrivals.title}</h2>
+                            <p className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans opacity-70">{businessData?.newArrivals?.heading}</p>
+                            <h2 className="text-[6vw] md:text-5xl font-serif font-medium text-brand-text mt-2 md:mt-4">{businessData?.newArrivals?.title}</h2>
                             <StaggerGrid className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-8 md:gap-y-16 mt-8 md:mt-16 items-start">
                                 {newArrivalsProducts.map(item => (
                                     <StaggerItem key={item.id}>
@@ -494,15 +494,15 @@ export default function AvenixPage() {
                     <ScrollSection direction="up" id="stats" className="py-12 md:py-24 w-full overflow-hidden">
                         <div className="container mx-auto px-4 md:px-6 grid grid-cols-2 gap-4 md:gap-16 items-center w-full max-w-full overflow-hidden">
                             <div className="text-left">
-                                <h2 className="text-[6vw] md:text-5xl font-serif font-medium text-brand-text">{businessData.stats.title}</h2>
-                                <p className="text-[2.5vw] md:text-xl font-sans text-brand-text/80 mt-2 md:mt-6 max-w-lg">{businessData.stats.text}</p>
+                                <h2 className="text-[6vw] md:text-5xl font-serif font-medium text-brand-text">{businessData?.stats?.title}</h2>
+                                <p className="text-[2.5vw] md:text-xl font-sans text-brand-text/80 mt-2 md:mt-6 max-w-lg">{businessData?.stats?.text}</p>
                                 <a href={`${basePath}/shop`} className="inline-flex items-center gap-2 text-[2.5vw] md:text-lg font-medium font-sans mt-4 md:mt-8 hover:opacity-80">
-                                    <span>{businessData.stats.cta}</span>
+                                    <span>{businessData?.stats?.cta}</span>
                                 </a>
                             </div>
                             <div className="flex flex-row gap-2 md:gap-8">
-                                {businessData.stats.items.map(stat => (
-                                    <div key={stat.label} className="flex-1 text-center p-4 md:p-8 bg-brand-primary rounded-xl md:rounded-2xl">
+                                {businessData?.stats?.items?.map((stat, i) => (
+                                    <div key={i} className="flex-1 text-center p-4 md:p-8 bg-brand-primary rounded-xl md:rounded-2xl">
                                         <p className="text-[8vw] md:text-6xl font-serif font-medium text-brand-text">{stat.number}</p>
                                         <p className="text-[2.5vw] md:text-lg font-sans text-brand-text/80 mt-2 md:mt-4">{stat.label}</p>
                                     </div>
@@ -516,23 +516,23 @@ export default function AvenixPage() {
                     <ScrollSection direction="up" id="blogs" className="py-12 md:py-24 bg-brand-primary w-full overflow-hidden">
                         <div className="container mx-auto px-4 md:px-6 w-full max-w-full overflow-hidden">
                             <div className="text-center mb-8 md:mb-16">
-                                <p className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans opacity-70">{businessData.blog.heading}</p>
-                                <h2 className="text-[6vw] md:text-5xl font-serif font-medium text-brand-text mt-2 md:mt-4">{businessData.blog.title}</h2>
+                                <p className="text-[2.5vw] md:text-sm uppercase tracking-widest font-sans opacity-70">{businessData?.blog?.heading}</p>
+                                <h2 className="text-[6vw] md:text-5xl font-serif font-medium text-brand-text mt-2 md:mt-4">{businessData?.blog?.title}</h2>
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 md:gap-x-12 gap-y-8 md:gap-y-16 items-start">
-                                {businessData.blog.items[0] && (
+                                {businessData?.blog?.items?.[0] && (
                                     <div className="col-span-1 md:col-span-1">
                                         <BlogCard 
-                                            key={businessData.blog.items[0].title} 
+                                            key={businessData.blog.items[0]?.title || 'post-1'} 
                                             post={businessData.blog.items[0]}
                                             size="small" 
                                         />
                                     </div>
                                 )}
-                                {businessData.blog.items[1] && (
+                                {businessData?.blog?.items?.[1] && (
                                     <div className="col-span-1 md:col-span-2">
                                         <BlogCard 
-                                            key={businessData.blog.items[1].title} 
+                                            key={businessData.blog.items[1]?.title || 'post-2'} 
                                             post={businessData.blog.items[1]}
                                             size="large"
                                         />

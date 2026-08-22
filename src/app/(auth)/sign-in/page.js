@@ -42,20 +42,27 @@ function SignInForm() {
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setErrorMessage(error.message);
-      setLoading(false);
-    } else {
-      if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
-        router.push(redirect);
+      if (error) {
+        setErrorMessage(error.message);
+        setLoading(false);
       } else {
-        router.push('/templates');
+        const destination = (redirect && redirect.startsWith('/') && !redirect.startsWith('//'))
+          ? redirect
+          : '/templates';
+        router.replace(destination);
+        // Reset loading after a short delay to prevent infinite spinner
+        // if navigation takes time (e.g. middleware token refresh)
+        setTimeout(() => setLoading(false), 5000);
       }
+    } catch (err) {
+      setErrorMessage('An unexpected error occurred. Please try again.');
+      setLoading(false);
     }
   };
 

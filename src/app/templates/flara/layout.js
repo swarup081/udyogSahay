@@ -115,21 +115,21 @@ function FlaraContent({ children }) {
                                             <img src={item.image} alt={item.name} className="w-16 h-20 object-cover bg-brand-primary" />
                                             <div className="flex-grow">
                                                 <h3 className="font-semibold text-brand-text">{item.name}</h3>
-                                                <p className="text-sm text-brand-text/70">₹{item.price.toFixed(2)}</p>
+                                                <p className="text-sm text-brand-text/70">₹{Number(item.price || 0).toFixed(2)}</p>
                                                 <div className="flex items-center border border-brand-text/30 w-fit mt-2">
                                                     <button onClick={() => decreaseQuantity(item.id)} className="w-8 h-8 text-lg text-brand-text/70 hover:bg-brand-primary">-</button>
                                                     <span className="w-8 h-8 flex items-center justify-center text-sm font-bold">{item.quantity}</span>
                                                     <button onClick={() => increaseQuantity(item.id)} className="w-8 h-8 text-lg text-brand-text/70 hover:bg-brand-primary">+</button>
                                                 </div>
                                             </div>
-                                            <p className="font-semibold text-brand-text">₹{(item.price * item.quantity).toFixed(2)}</p>
+                                            <p className="font-semibold text-brand-text">₹{Number((item.price || 0) * (item.quantity || 1)).toFixed(2)}</p>
                                         </div>
                                     ))}
                                 </div>
                                 <div className="border-t border-brand-primary/20 pt-4 space-y-2">
                                     <div className="flex justify-between text-brand-text/80 font-medium">
                                         <span>Subtotal</span>
-                                        <span>₹{subtotal.toFixed(2)}</span>
+                                        <span>₹{Number(subtotal || 0).toFixed(2)}</span>
                                     </div>
                                     <p className="text-xs text-brand-text/60">Shipping & taxes calculated at checkout.</p>
                                     <a 

@@ -70,7 +70,7 @@ export const Header = ({ business, cartCount, onCartClick }) => {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center relative">
             {/* Left Nav */}
             <nav className="hidden md:flex items-center gap-6">
-                {business.navigation.map(navItem => (
+                {business?.navigation?.map(navItem => (
                     <a key={navItem.label} href={resolveLink(navItem.href)} className="text-sm font-medium tracking-wide text-brand-text hover:opacity-70 transition-opacity">
                         {navItem.label}
                     </a>
@@ -86,8 +86,8 @@ export const Header = ({ business, cartCount, onCartClick }) => {
             
              {/* Right Nav & Icons */}
             <div className="flex-1 flex justify-end items-center gap-6">
-                 <a href={resolveLink(business.headerButton.href)} className="hidden lg:inline-block bg-brand-secondary text-brand-bg px-6 py-3 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity">
-                    {business.headerButton.text}
+                 <a href={resolveLink(business?.headerButton?.href)} className="hidden lg:inline-block bg-brand-secondary text-brand-bg px-6 py-3 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity">
+                    {business?.headerButton?.text}
                 </a>
                 <button onClick={onCartClick} className="relative text-brand-text hover:text-brand-secondary transition-colors">
                     <CartIcon />
@@ -118,7 +118,7 @@ export const ProductCard = ({ item, templateName }) => {
         }
     };
     
-    const category = businessData.categories.find(c => c.id === item.category);
+    const category = businessData?.categories?.find(c => c.id === item.category);
     const productUrl = `${basePath && basePath !== '.' ? basePath : ''}/product/${item.id}`;
 
     return (
@@ -154,7 +154,7 @@ export const ProductCard = ({ item, templateName }) => {
                     <h4 className="text-[3vw] md:text-xl font-bold text-brand-text font-serif mt-1">
                         <a href={productUrl} className="hover:text-brand-secondary line-clamp-1">{item.name}</a>
                     </h4>
-                    <p className="text-brand-secondary text-[2.5vw] md:text-lg font-medium mt-1">₹{item.price.toFixed(2)}</p>
+                    <p className="text-brand-secondary text-[2.5vw] md:text-lg font-medium mt-1">₹{Number(item.price || 0).toFixed(2)}</p>
                 </div>
 
                 {/* Actions (Always visible) */}

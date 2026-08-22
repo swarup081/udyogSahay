@@ -60,7 +60,7 @@ export const Header = ({ business, cartCount, onCartClick }) => {
                     {business.logoText}
                 </a>
                 <nav className="hidden md:flex space-x-10">
-                    {business.navigation.map(navItem => (
+                    {business?.navigation?.map(navItem => (
                         <a 
                           key={navItem.label} 
                           href={resolveLink(navItem.href)} 
@@ -99,7 +99,7 @@ export const ProductCard = ({ item, templateName }) => { // templateName is actu
         }
     };
     
-    const category = businessData.categories.find(c => c.id === item.category);
+    const category = businessData?.categories?.find(c => c.id === item.category);
     const productUrl = `${basePath && basePath !== '.' ? basePath : ''}/product/${item.id}`;
 
     return (
@@ -133,7 +133,7 @@ export const ProductCard = ({ item, templateName }) => { // templateName is actu
                     {category && (
                         <p className="text-brand-text opacity-60 text-sm mt-1">{category.name}</p>
                     )}
-                    <p className="text-brand-text font-medium text-base mt-1">₹{item.price.toFixed(2)}</p>
+                    <p className="text-brand-text font-medium text-base mt-1">₹{Number(item.price || 0).toFixed(2)}</p>
                 </div>
             </div>
 

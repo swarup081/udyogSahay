@@ -226,7 +226,7 @@ function AuroraContent({ children }) {
                             <div className="border-t border-gray-100 pt-6 mt-4">
                                 <div className="flex justify-between font-serif text-2xl mb-6">
                                     <span>Total</span>
-                                    <span>₹{total.toFixed(2)}</span>
+                                    <span>₹{Number(total || 0).toFixed(2)}</span>
                                 </div>
                                 <a href={`${basePath}/checkout`} className="block w-full bg-[var(--color-dark)] text-white text-center py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[var(--color-gold)] transition-colors">
                                     Checkout

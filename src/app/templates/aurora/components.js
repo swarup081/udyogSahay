@@ -78,7 +78,7 @@ const HeaderContent = () => {
                 <a href={resolveLink("")} onClick={isLanding ? (e) => e.preventDefault() : undefined} className={`flex items-center gap-3 absolute left-1/2 -translate-x-1/2 ${isLanding ? 'cursor-default' : ''}`}>
                     <Editable focusId="hero">
                         <span className="font-serif text-[6vw] md:text-3xl text-[var(--color-dark)] tracking-tight font-medium">
-                            {businessData.name}
+                            {businessData?.name}
                         </span>
                     </Editable>
                 </a>
@@ -152,7 +152,7 @@ export const ProductCard = ({ item }) => {
                 <a href={productUrl} className="flex-grow">
                     <h3 className="font-serif text-[3.5vw] md:text-lg text-[var(--color-dark)] leading-tight mb-1 md:mb-2 group-hover:text-[var(--color-gold)] transition-colors">{item.name}</h3>
                 </a>
-                <span className="text-[2.5vw] md:text-sm font-medium text-[var(--color-text-light)] tracking-wide">₹{item.price.toFixed(2)}</span>
+                <span className="text-[2.5vw] md:text-sm font-medium text-[var(--color-text-light)] tracking-wide">₹{Number(item.price || 0).toFixed(2)}</span>
                 
                 {/* Always Visible Buttons */}
                 <div className="mt-auto flex gap-2">
@@ -360,7 +360,7 @@ export const Footer = () => {
             <div className="container mx-auto px-6 lg:px-12">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-20">
                     <div className="col-span-2 md:col-span-1">
-                        <h3 className="text-2xl font-serif font-bold mb-4 md:mb-6 text-[var(--color-dark)]">{businessData.name}</h3>
+                        <h3 className="text-2xl font-serif font-bold mb-4 md:mb-6 text-[var(--color-dark)]">{businessData?.name}</h3>
                         <p className="text-[3vw] md:text-sm text-[var(--color-text-light)] leading-relaxed mb-4 md:mb-6 max-w-xs">{businessData.footer?.description}</p>
                     </div>
                     

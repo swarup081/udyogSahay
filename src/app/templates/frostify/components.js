@@ -103,7 +103,7 @@ export const Header = () => {
 
 // --- SPECIALTY CARD (Unique Shape from Image) ---
 export const SpecialtyCard = ({ title, shapeClass = "rounded-t-[30px]" }) => {
-    const parts = title.split(' '); 
+    const parts = (title || '').split(' '); 
     
     return (
         <div className={`aspect-square bg-[#F9F4F6] ${shapeClass} flex flex-col items-center justify-center text-center p-3 md:p-6 hover:bg-[var(--color-accent)]/20 transition-colors cursor-pointer group shadow-sm overflow-hidden`}>
@@ -158,7 +158,7 @@ export const ProductCard = ({ item }) => {
                 <a href={productUrl} className="flex-grow">
                     <h3 className="font-serif text-[3vw] md:text-lg text-[var(--color-primary)] hover:text-[var(--color-secondary)] tracking-wide">{item.name}</h3>
                 </a>
-                <p className="text-[var(--color-secondary)] font-bold text-[3vw] md:text-lg">₹{item.price.toFixed(2)}</p>
+                <p className="text-[var(--color-secondary)] font-bold text-[3vw] md:text-lg">₹{Number(item.price || 0).toFixed(2)}</p>
                 
                 {/* Updated Buttons: View + Add (Side-by-side or Stacked, always visible) */}
                 <div className="mt-auto w-full flex gap-2">

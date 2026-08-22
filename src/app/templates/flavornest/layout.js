@@ -192,7 +192,7 @@ function FlavorNestContent({ children }) {
                                                 <img src={item.image} alt={item.name} className="w-16 h-20 object-cover bg-brand-primary rounded" />
                                                 <div className="flex-grow">
                                                     <h3 className="font-semibold text-brand-text">{item.name}</h3>
-                                                    <p className="text-sm text-brand-text/70">₹{item.price.toFixed(2)}</p>
+                                                    <p className="text-sm text-brand-text/70">₹{Number(item.price || 0).toFixed(2)}</p>
                                                     <div className="flex items-center border border-brand-text/30 w-fit mt-2 rounded">
                                                         <button onClick={() => decreaseQuantity(item.id)} className="w-8 h-8 text-lg text-brand-text/70 hover:bg-brand-primary">-</button>
                                                         <span className="w-8 h-8 flex items-center justify-center text-sm font-bold">{item.quantity}</span>
@@ -200,7 +200,7 @@ function FlavorNestContent({ children }) {
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-semibold text-brand-text">₹{(item.price * item.quantity).toFixed(2)}</p>
+                                                    <p className="font-semibold text-brand-text">₹{Number((item.price || 0) * (item.quantity || 1)).toFixed(2)}</p>
                                                     <button onClick={() => removeFromCart(item.id)} className="text-xs text-red-500 hover:text-red-700 mt-1">Remove</button>
                                                 </div>
                                             </div>
@@ -209,15 +209,15 @@ function FlavorNestContent({ children }) {
                                     <div className="border-t border-brand-primary/20 pt-4 space-y-2">
                                         <div className="flex justify-between text-brand-text/80 font-medium">
                                             <span>Subtotal</span>
-                                            <span>₹{subtotal.toFixed(2)}</span>
+                                            <span>₹{Number(subtotal || 0).toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-brand-text/80 font-medium">
                                             <span>Shipping</span>
-                                            <span>₹{shipping.toFixed(2)}</span>
+                                            <span>₹{Number(shipping || 0).toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-brand-text font-bold text-lg pt-2 border-t border-brand-primary/20 mt-2">
                                             <span>Total</span>
-                                            <span>₹{total.toFixed(2)}</span>
+                                            <span>₹{Number(total || 0).toFixed(2)}</span>
                                         </div>
                                         <p className="text-xs text-brand-text/60">Shipping & taxes calculated at checkout.</p>
                                         
