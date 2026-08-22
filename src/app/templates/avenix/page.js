@@ -260,7 +260,7 @@ export default function AvenixPage() {
             {/* Header and Footer are gone */}
             <main className="w-full overflow-x-hidden">
                 {/* --- 1. REPLACED Hero Section --- */}
-                <HeelsHero heroData={businessData.heelsHero} />
+                <HeelsHero heroData={businessData?.heelsHero || {}} />
                 
                {/* --- 2. About Section --- */}
                <Editable focusId="about">
@@ -523,8 +523,8 @@ export default function AvenixPage() {
                                 {businessData?.blog?.items?.[0] && (
                                     <div className="col-span-1 md:col-span-1">
                                         <BlogCard 
-                                            key={businessData.blog.items[0]?.title || 'post-1'} 
-                                            post={businessData.blog.items[0]}
+                                            key={businessData?.blog?.items?.[0]?.title || 'post-1'} 
+                                            post={businessData?.blog?.items?.[0] || {}}
                                             size="small" 
                                         />
                                     </div>
@@ -532,8 +532,8 @@ export default function AvenixPage() {
                                 {businessData?.blog?.items?.[1] && (
                                     <div className="col-span-1 md:col-span-2">
                                         <BlogCard 
-                                            key={businessData.blog.items[1]?.title || 'post-2'} 
-                                            post={businessData.blog.items[1]}
+                                            key={businessData?.blog?.items?.[1]?.title || 'post-2'} 
+                                            post={businessData?.blog?.items?.[1] || {}}
                                             size="large"
                                         />
                                     </div>

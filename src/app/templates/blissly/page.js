@@ -67,7 +67,7 @@ export default function BrewhavenPage() {
                     <HeroAnimation direction="left" delay={0.2} className="flex justify-center">
                     <div className="w-full max-w-sm lg:max-w-md aspect-square overflow-hidden">
                         <img 
-                        src={businessData.hero.image} 
+                        src={businessData.hero?.image} 
                         alt="Hero Image" 
                         className="w-full h-full object-contain object-center"
                         />
@@ -116,7 +116,7 @@ export default function BrewhavenPage() {
                 <div className="container mx-auto py-6 md:py-14 max-w-6xl grid grid-cols-2 md:grid-cols-2 gap-6 md:gap-16 items-center px-4 md:px-6">
                     <div className="flex justify-center">
                         <img 
-                            src={businessData.about.image} 
+                            src={businessData.about?.image} 
                             alt="Artisanal Roasting" 
                             className="w-full max-w-md lg:max-w-lg aspect-[4/5] object-cover rounded-t-full shadow-md"
                         />

@@ -319,7 +319,7 @@ function AuroraContent() {
                 {/* --- REVIEWS (IMPROVED) --- */}
                 <Editable focusId="testimonials">
                     <ScrollSection direction="up" className="py-12 md:py-24 bg-[var(--color-bg)] border-t border-[var(--color-bg-alt)]">
-                        <TestimonialSlider data={businessData.testimonials} />
+                        <TestimonialSlider data={businessData.testimonials || {}} />
                     </ScrollSection>
                 </Editable>
 
@@ -343,14 +343,14 @@ function AuroraContent() {
                 {/* --- AN INVITATION (NEW & IMPROVED) --- */}
                 <Editable focusId="cta">
                     <ScrollSection direction="up">
-                        <NewsletterCTA data={businessData.newsletterCta} />
+                        <NewsletterCTA data={businessData.newsletterCta || {}} />
                     </ScrollSection>
                 </Editable>
 
                 <Editable focusId="instagram">
                     <ScrollSection direction="up" className="py-12 md:py-24 bg-white">
                         <div className="container mx-auto px-6 lg:px-16">
-                            <InstagramFeed data={businessData.instagram} />
+                            <InstagramFeed data={businessData.instagram || {}} />
                         </div>
                     </ScrollSection>
                 </Editable>

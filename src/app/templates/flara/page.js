@@ -47,7 +47,7 @@ export default function CandleaPage() {
                         <HeroAnimation direction="left" delay={0.2} className="flex justify-center w-full">
                             <div className="w-full max-w-md lg:max-w-lg aspect-[4/5] rounded-bl-[50px] rounded-tr-[50px] md:rounded-bl-[150px] md:rounded-tr-[150px] overflow-hidden">
                                 <img 
-                                    src={businessData.hero.image} 
+                                    src={businessData.hero?.image} 
                                     alt="Hero Candle" 
                                     className="w-full h-full object-cover"
                                 />
@@ -85,7 +85,7 @@ export default function CandleaPage() {
                     <div className="container mx-auto px-6 flex flex-row md:grid md:grid-cols-2 gap-4 md:gap-12 items-center">
                         <div className="flex justify-center w-1/2 md:w-full">
                             <img 
-                                src={businessData.feature1.image} 
+                                src={businessData.feature1?.image} 
                                 alt="Crafting warmth" 
                                 className="w-full max-w-md lg:max-w-lg aspect-square object-cover"
                             />
@@ -192,7 +192,7 @@ export default function CandleaPage() {
                         <div className="relative w-full mt-8 md:mt-0">
                             <div className="w-full aspect-[4/5] rounded-t-full overflow-hidden">
                                 <img 
-                                    src={businessData.feature2.image1} 
+                                    src={businessData.feature2?.image1} 
                                     alt="Peaceful scents"
                                     className="w-full h-full object-cover"
                                 />
@@ -205,7 +205,7 @@ export default function CandleaPage() {
                                 <p className="text-xs md:text-lg text-brand-text opacity-70 mt-2 md:mt-6 w-full max-w-none md:max-w-lg">{businessData.feature2.text}</p>
 
                                 <img 
-                                    src={businessData.feature2.image2}
+                                    src={businessData.feature2?.image2}
                                     alt="Calming candle"
                                     className="w-full max-w-xs h-auto object-cover mt-4 md:mt-8"
                                 />
