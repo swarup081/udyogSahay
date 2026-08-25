@@ -2,7 +2,7 @@
 
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Select from '@radix-ui/react-select';
-import { X, UploadCloud, Loader2, Check, ChevronDown, CheckCircle, Plus, Trash2, Palette, Ruler, AlertCircle } from 'lucide-react';
+import { X, UploadCloud, ImagePlus, Loader2, Check, ChevronDown, CheckCircle, Plus, Trash2, Palette, Ruler, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { syncWebsiteDataClient } from '@/lib/websiteSync';
@@ -42,7 +42,9 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
   const [imageUploading, setImageUploading] = useState(false);
   const [additionalUploading, setAdditionalUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [errors, setErrors] = useState({});
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [customVariantNames, setCustomVariantNames] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -62,8 +64,27 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
       { id: 'other', label: 'Other', icon: Plus },
   ];
 
+
+  const initVariants = (variants) => {
+      return (variants || []).map(v => {
+          if (v.options && Array.isArray(v.options)) return v;
+          const opts = (v.values || '').split(',').map(s => s.trim()).filter(Boolean).map(val => {
+              return { name: val, price: '', stock: '', isDefault: false };
+          });
+          return { ...v, options: opts };
+      });
+  };
+
   useEffect(() => {
     if (isOpen) {
+      if (websiteId) {
+          supabase.from('websites').select('website_data').eq('id', websiteId).single()
+          .then(({data}) => {
+              if (data?.website_data?.customVariantNames) {
+                  setCustomVariantNames(data.website_data.customVariantNames);
+              }
+          });
+      }
       setUploadError('');
       if (productToEdit) {
          setFormData({
@@ -75,7 +96,7 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
             description: productToEdit.description || '',
             imageUrl: productToEdit.image_url || '',
             additionalImages: productToEdit.additional_images || [],
-            variants: productToEdit.variants || [],
+            variants: initVariants(productToEdit.variants),
          });
       } else {
          setFormData({
@@ -91,7 +112,7 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
          });
       }
     }
-  }, [isOpen, categories, productToEdit]);
+  }, [isOpen, categories, productToEdit, websiteId]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -167,23 +188,35 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
   };
 
   const addVariant = (type) => {
-      let initialValues = '';
-      let initialName = '';
-      
-      if (type === 'size') {
-          initialName = 'Size';
-          initialValues = 'S, M, L, XL'; // Default suggestion
-      } else if (type === 'color') {
-          initialName = 'Color';
-          initialValues = '#000000:Black, #FFFFFF:White'; // Default suggestion
-      } else {
-          initialName = 'Custom';
-      }
+      setFormData(prev => {
+          const defaultPrice = prev.price !== '' ? prev.price : '';
+          const defaultStock = prev.isUnlimited ? '' : (prev.stock !== '' ? prev.stock : '');
+          const defaultIsUnlimited = prev.isUnlimited || false;
 
-      setFormData(prev => ({
-          ...prev,
-          variants: [...prev.variants, { type: type, name: initialName, values: initialValues }]
-      }));
+          let initialName = '';
+          let initialOptions = [];
+          
+          if (type === 'size') {
+              initialName = 'Size';
+              initialOptions = ['S', 'M', 'L', 'XL'].map(size => ({
+                 name: size, price: defaultPrice, stock: defaultStock, isUnlimited: defaultIsUnlimited, isDefault: false 
+              }));
+          } else if (type === 'color') {
+              initialName = 'Color';
+              initialOptions = [
+                 { name: '#000000:Black', price: defaultPrice, stock: defaultStock, isUnlimited: defaultIsUnlimited, isDefault: false },
+                 { name: '#FFFFFF:White', price: defaultPrice, stock: defaultStock, isUnlimited: defaultIsUnlimited, isDefault: false }
+              ];
+          } else {
+              initialName = '';
+              initialOptions = [ { name: '', price: defaultPrice, stock: defaultStock, isUnlimited: defaultIsUnlimited, isDefault: false } ];
+          }
+
+          return {
+              ...prev,
+              variants: [...prev.variants, { type: type, name: initialName, values: '', options: initialOptions }]
+          };
+      });
   };
 
   const updateVariant = (index, field, value) => {
@@ -197,6 +230,66 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
           ...prev,
           variants: prev.variants.filter((_, i) => i !== index)
       }));
+  };
+
+  const addSubVariant = (variantIndex) => {
+      const newVariants = [...formData.variants];
+      newVariants[variantIndex].options.push({ 
+          name: '', 
+          price: formData.price !== '' ? formData.price : '', 
+          stock: formData.isUnlimited ? '' : (formData.stock !== '' ? formData.stock : ''), 
+          isUnlimited: formData.isUnlimited || false,
+          isDefault: false 
+      });
+      setFormData(prev => ({ ...prev, variants: newVariants }));
+      
+      // Clear any hanging errors for the newly added option index
+      const newOptIdx = newVariants[variantIndex].options.length - 1;
+      setErrors(prev => ({ 
+          ...prev, 
+          [`variant-${variantIndex}-${newOptIdx}-price`]: '',
+          [`variant-${variantIndex}-${newOptIdx}-stock`]: ''
+      }));
+  };
+
+  const updateSubVariant = (variantIndex, optIndex, field, value) => {
+      setErrors(prev => ({ ...prev, [`variant-${variantIndex}-${optIndex}-${field}`]: "" }));
+      if (field === 'price') {
+          if (Number(value) < 0) {
+              setErrors(prev => ({ ...prev, [`variant-${variantIndex}-${optIndex}-price`]: "Price cannot be negative" }));
+              return;
+          }
+      }
+      
+      if (field === 'stock') {
+          if (Number(value) < 0) {
+              setErrors(prev => ({ ...prev, [`variant-${variantIndex}-${optIndex}-stock`]: "Stock cannot be negative" }));
+              return;
+          }
+      }
+      
+      const newVariants = [...formData.variants];
+      if (field === 'isDefault' && value === true) {
+          newVariants[variantIndex].options.forEach(opt => opt.isDefault = false);
+      }
+      newVariants[variantIndex].options[optIndex][field] = value;
+      setFormData(prev => ({ ...prev, variants: newVariants }));
+  };
+
+  const removeSubVariant = (variantIndex, optIndex) => {
+      const newVariants = [...formData.variants];
+      newVariants[variantIndex].options.splice(optIndex, 1);
+      setFormData(prev => ({ ...prev, variants: newVariants }));
+      
+      // When removing an option, the indices shift down. 
+      // Safest way is to clear all variant errors to prevent stale errors on shifted fields
+      setErrors(prev => {
+          const newErr = { ...prev };
+          Object.keys(newErr).forEach(key => {
+              if (key.startsWith(`variant-${variantIndex}-`)) delete newErr[key];
+          });
+          return newErr;
+      });
   };
 
   const handleSubmit = async (e) => {
@@ -219,7 +312,24 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
       // Ensure positive if finite
       if (finalStock < 0 && finalStock !== -1) finalStock = 0;
 
-      const cleanVariants = formData.variants.filter(v => v.name.trim() !== '' && v.values.trim() !== '');
+            const cleanVariants = formData.variants.map(v => {
+          const cleanOpts = (v.options || []).filter(o => o.name.trim() !== '');
+          const valsString = cleanOpts.map(o => o.name.trim()).join(', ');
+          return { ...v, options: cleanOpts, values: valsString };
+      }).filter(v => v.name.trim() !== '' && v.options.length > 0);
+
+      // Background process: Save custom variant names
+      const currentCustomNames = cleanVariants.filter(v => v.type === 'other').map(v => v.name.trim());
+      const newCustomNames = currentCustomNames.filter(name => name && !customVariantNames.includes(name));
+      if (newCustomNames.length > 0 && websiteId) {
+           const updatedCustomNames = [...new Set([...customVariantNames, ...newCustomNames])];
+           supabase.from('websites').select('website_data').eq('id', websiteId).single().then(({data}) => {
+               if (data && data.website_data) {
+                   const newWebData = { ...data.website_data, customVariantNames: updatedCustomNames };
+                   supabase.from('websites').update({ website_data: newWebData }).eq('id', websiteId).then();
+               }
+           });
+      }
 
       let productId = productToEdit ? productToEdit.id : null;
 
@@ -319,18 +429,18 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
                       
                       {/* Main Image */}
                       <div className="flex justify-center">
-                          <div className="relative group w-32 h-32 rounded-2xl bg-gray-50/50 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-[#8A63D2] hover:bg-brand-50 transition-all cursor-pointer">
+                          <div className="relative group w-full h-48 rounded-2xl bg-gray-50/50 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-[#8A63D2] hover:bg-brand-50 transition-all cursor-pointer">
                               {imageUploading ? (
                               <div className="flex flex-col items-center text-[#8A63D2]">
-                                  <Loader2 size={24} className="animate-spin" />
-                                  <span className="text-xs mt-1">Uploading...</span>
+                                  <Loader2 size={32} className="animate-spin" />
+                                  <span className="text-sm mt-2">Uploading...</span>
                               </div>
                               ) : formData.imageUrl ? (
                               <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
                               ) : (
-                              <div className="flex flex-col items-center text-gray-400">
-                                  <UploadCloud size={24} />
-                                  <span className="text-xs mt-1">Main Image</span>
+                              <div className="flex flex-col items-center text-gray-400 group-hover:text-[#8A63D2] transition-colors">
+                                  <ImagePlus size={32} />
+                                  <span className="text-sm mt-2 font-medium">Click to upload Main Image</span>
                               </div>
                               )}
                               <input 
@@ -387,8 +497,9 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
                           onChange={handleChange}
                           required
                           placeholder="e.g. Leather Pouch"
-                          className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:ring-brand-500 transition-all"
+                          className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] transition-all"
                           />
+                          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -398,12 +509,15 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
                               name="price"
                               type="number"
                               step="0.01"
+                              min="0"
                               value={formData.price}
                               onChange={handleChange}
                               required
+                              onWheel={(e) => e.target.blur()}
                               placeholder="0.00"
-                              className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:ring-brand-500 transition-all"
+                              className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] transition-all appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0"
                               />
+                              {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                           </div>
                           
                           <div className="space-y-1.5">
@@ -415,25 +529,43 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
                                     name="isUnlimited"
                                     checked={formData.isUnlimited}
                                     onChange={handleChange}
-                                    className="w-3 h-3 text-[#8A63D2] rounded focus:ring-[#8A63D2]"
+                                    className="w-3 h-3 text-[#8A63D2] accent-[#8A63D2] rounded focus:ring-[#8A63D2]"
                                     />
                                     <span className="text-[10px] text-gray-500 font-medium">Unlimited</span>
                                 </label>
                             </div>
                             {formData.isUnlimited ? (
-                                <div className="w-full p-3 border border-gray-200 bg-gray-50 rounded-md text-gray-400 text-sm italic">
-                                    Stock is unlimited
-                                </div>
-                            ) : (
                                 <input 
-                                name="stock"
-                                type="number"
-                                min="0"
-                                value={formData.stock}
-                                onChange={handleChange}
-                                placeholder="Qty"
-                                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:ring-brand-500 transition-all"
+                                    disabled
+                                    type="text"
+                                    value="Unlimited"
+                                    className="w-full p-3 border border-gray-200 bg-gray-50 rounded-md text-gray-500 font-medium text-sm cursor-not-allowed select-none"
                                 />
+                            ) : (
+                                <div className="w-full">
+                                    <input 
+                                    name="stock"
+                                    type="number"
+                                    min="0"
+                                    value={formData.stock}
+                                    onChange={handleChange}
+                                    onWheel={(e) => e.target.blur()}
+                                    placeholder="Qty"
+                                    onKeyDown={(e) => {
+                                        if (['e', 'E', '+'].includes(e.key)) {
+                                            e.preventDefault();
+                                        } else if (e.key === '-') {
+                                            e.preventDefault();
+                                            setErrors(prev => ({ ...prev, stock: "Stock cannot be negative" }));
+                                        } else if (e.key === '.') {
+                                            e.preventDefault();
+                                            setErrors(prev => ({ ...prev, stock: "Decimals not allowed" }));
+                                        }
+                                    }}
+                                    className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] transition-all appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0"
+                                    />
+                                    {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock}</p>}
+                                </div>
                             )}
                         </div>
                     </div>
@@ -444,7 +576,7 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
                             value={String(formData.categoryId)} 
                             onValueChange={(val) => setFormData(prev => ({ ...prev, categoryId: val }))}
                         >
-                            <Select.Trigger className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:ring-brand-500 transition-all bg-white flex justify-between items-center text-left">
+                            <Select.Trigger className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] transition-all bg-white flex justify-between items-center text-left">
                                 <Select.Value placeholder="Select Category">
                                     {categories.find(c => String(c.id) === String(formData.categoryId))?.name || 'Select Category'}
                                 </Select.Value>
@@ -517,25 +649,209 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
                                     </button>
                                 </div>
 
-                                <div className="flex gap-2">
-                                    <div className="w-1/3">
-                                        <input 
-                                            placeholder="Name" 
-                                            className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                                            value={variant.name}
-                                            onChange={(e) => updateVariant(idx, 'name', e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <input 
-                                            placeholder={variant.type === 'color' ? "#HEX:Name, #HEX:Name" : "Values (comma separated)"} 
-                                            className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:ring-brand-500"
-                                            value={variant.values}
-                                            onChange={(e) => updateVariant(idx, 'values', e.target.value)}
-                                        />
-                                        {variant.type === 'color' && (
-                                            <p className="text-[10px] text-gray-400 mt-1">Format: #hex:Name (e.g. #ff0000:Red, #000000:Black)</p>
+                                <div className="space-y-3">
+                                    <div className="w-1/2">
+                                        {variant.type === 'other' && customVariantNames.length > 0 ? (
+                                            <>
+                                                <input 
+                                                    placeholder="Custom Name (e.g. Material)" 
+                                                    list={`custom-variants-${idx}`}
+                                                    className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2]"
+                                                    value={variant.name}
+                                                    onChange={(e) => updateVariant(idx, 'name', e.target.value)}
+                                                />
+                                                <datalist id={`custom-variants-${idx}`}>
+                                                    {customVariantNames.map((name, i) => <option key={i} value={name} />)}
+                                                </datalist>
+                                            </>
+                                        ) : (
+                                            <input 
+                                                placeholder={variant.type === 'other' ? "Custom Name" : "Name"}
+                                                className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:ring-1 focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2]"
+                                                value={variant.name}
+                                                onChange={(e) => updateVariant(idx, 'name', e.target.value)}
+                                                disabled={variant.type !== 'other'}
+                                            />
                                         )}
+                                    </div>
+                                    
+                                    <div className="space-y-3 bg-white p-3 rounded-lg border border-gray-200 shadow-sm mt-3">
+                                        {(variant.options || []).map((opt, optIdx) => {
+                                            const isColor = variant.type === 'color';
+                                            let colorHex = '#000000';
+                                            let colorName = opt.name;
+                                            if (isColor && opt.name) {
+                                                const parts = opt.name.split(':');
+                                                if (parts.length > 1 && parts[0].startsWith('#')) {
+                                                    colorHex = parts[0];
+                                                    colorName = parts.slice(1).join(':');
+                                                }
+                                            }
+                                            return (
+                                            <div key={optIdx} className="relative flex flex-wrap md:flex-nowrap gap-3 items-end pb-4 border-b border-gray-100 last:border-0 last:pb-0 pt-8 mt-2">
+                                                {/* Top Right Actions */}
+                                                <div className="absolute top-0 right-0 flex items-center gap-4">
+                                                    <label className="text-[10px] font-bold text-gray-500 uppercase flex items-center gap-1.5 cursor-pointer hover:text-gray-700">
+                                                        <div 
+                                                            className={`w-4 h-4 flex items-center justify-center rounded cursor-pointer border transition-colors ${opt.isDefault ? 'bg-[#8A63D2] border-[#8A63D2]' : 'border-gray-300 bg-white'}`}
+                                                            onClick={(e) => updateSubVariant(idx, optIdx, 'isDefault', !opt.isDefault)}
+                                                        >
+                                                            {opt.isDefault && <Check size={12} className="text-white" />}
+                                                        </div>
+                                                        <span>Default</span>
+                                                    </label>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => removeSubVariant(idx, optIdx)}
+                                                        className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
+                                                        title="Remove Option"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+
+                                                <div className={`${isColor ? 'w-[130px]' : 'w-[80px]'} shrink-0`}>
+                                                    <label className="text-[10px] font-bold text-gray-500 uppercase mb-1 block">
+                                                        {isColor ? 'Color & Name' : 'Option Name'}
+                                                    </label>
+                                                    {isColor ? (
+                                                        <div className="flex gap-2 items-center">
+                                                            <div 
+                                                                className="w-10 h-10 shrink-0 rounded-md overflow-hidden shadow-sm border border-gray-300 relative" 
+                                                                style={{ backgroundColor: colorHex }}
+                                                            >
+                                                                <input 
+                                                                    type="color"
+                                                                    value={colorHex}
+                                                                    onChange={(e) => {
+                                                                        updateSubVariant(idx, optIdx, 'name', `${e.target.value}:${colorName}`);
+                                                                    }}
+                                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                                />
+                                                            </div>
+                                                            <input 
+                                                                placeholder="e.g. Red" 
+                                                                className="flex-1 min-w-0 p-2 border border-gray-300 rounded-md text-xs outline-none focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] transition-colors"
+                                                                value={colorName}
+                                                                onChange={(e) => {
+                                                                    updateSubVariant(idx, optIdx, 'name', `${colorHex}:${e.target.value}`);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <input 
+                                                            placeholder="e.g. Small, Red" 
+                                                            className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] transition-colors"
+                                                            value={opt.name}
+                                                            onChange={(e) => updateSubVariant(idx, optIdx, 'name', e.target.value)}
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="w-[110px]">
+                                                    <label className="text-[10px] font-bold text-gray-500 uppercase mb-1 block" title="Leave blank to use base price">Price (₹)</label>
+                                                    <input 
+                                                        placeholder="Base Price" 
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.01"
+                                                        onWheel={(e) => e.target.blur()}
+                                                        onKeyDown={(e) => {
+                                                            if (['e', 'E', '+'].includes(e.key)) {
+                                                                e.preventDefault();
+                                                            } else if (e.key === '-') {
+                                                                e.preventDefault();
+                                                                setErrors(prev => ({ ...prev, [`variant-${idx}-${optIdx}-price`]: "Price cannot be negative" }));
+                                                            }
+                                                        }}
+                                                        className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] transition-colors appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0"
+                                                        value={opt.price}
+                                                        onChange={(e) => updateSubVariant(idx, optIdx, 'price', e.target.value)}
+                                                        onFocus={() => {
+                                                            if (String(opt.price) === String(formData.price) && formData.price !== '') {
+                                                                updateSubVariant(idx, optIdx, 'price', '');
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            if (e.target.value === '' && formData.price !== '') {
+                                                                updateSubVariant(idx, optIdx, 'price', formData.price);
+                                                            }
+                                                        }}
+                                                    />
+                                                    {errors[`variant-${idx}-${optIdx}-price`] && <p className="text-red-500 text-[10px] mt-1 leading-tight">{errors[`variant-${idx}-${optIdx}-price`]}</p>}
+                                                </div>
+                                                <div className="flex-[1.2]">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase" title="Leave blank to use base stock">Stock</label>
+                                                        <div className="flex items-center gap-1">
+                                                            <div 
+                                                                className={`w-3.5 h-3.5 flex items-center justify-center rounded cursor-pointer border transition-colors ${opt.isUnlimited ? 'bg-[#8A63D2] border-[#8A63D2]' : 'border-gray-300 bg-white'}`}
+                                                                onClick={(e) => {
+                                                                    updateSubVariant(idx, optIdx, 'isUnlimited', !opt.isUnlimited);
+                                                                    if (!opt.isUnlimited) updateSubVariant(idx, optIdx, 'stock', '');
+                                                                }}
+                                                                title="Unlimited Stock"
+                                                            >
+                                                                {opt.isUnlimited && <Check size={10} className="text-white" />}
+                                                            </div>
+                                                            <span className="text-[9px] font-bold text-gray-500 uppercase cursor-pointer" onClick={() => { updateSubVariant(idx, optIdx, 'isUnlimited', !opt.isUnlimited); if (!opt.isUnlimited) updateSubVariant(idx, optIdx, 'stock', ''); }}>Unlimited</span>
+                                                        </div>
+                                                    </div>
+                                                    {opt.isUnlimited ? (
+                                                        <input 
+                                                            disabled
+                                                            type="text"
+                                                            value="Unlimited"
+                                                            className="w-full p-2 border border-gray-200 bg-gray-50 rounded-md text-gray-500 font-medium text-xs h-[34px] cursor-not-allowed select-none"
+                                                        />
+                                                    ) : (
+                                                    <div className="w-full">
+                                                    <input 
+                                                        placeholder="Base Stock" 
+                                                        type="number"
+                                                        min="0"
+                                                        onWheel={(e) => e.target.blur()}
+                                                        onKeyDown={(e) => {
+                                                            if (['e', 'E', '+'].includes(e.key)) {
+                                                                e.preventDefault();
+                                                            } else if (e.key === '-') {
+                                                                e.preventDefault();
+                                                                setErrors(prev => ({ ...prev, [`variant-${idx}-${optIdx}-stock`]: "Stock cannot be negative" }));
+                                                            } else if (e.key === '.') {
+                                                                e.preventDefault();
+                                                                setErrors(prev => ({ ...prev, [`variant-${idx}-${optIdx}-stock`]: "Decimals not allowed" }));
+                                                            }
+                                                        }}
+                                                        className="w-full p-2 border border-gray-300 rounded-md text-xs outline-none focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] transition-colors appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0"
+                                                        value={opt.stock}
+                                                        onChange={(e) => updateSubVariant(idx, optIdx, 'stock', e.target.value)}
+                                                        onFocus={() => {
+                                                            if (!opt.isUnlimited && String(opt.stock) === String(formData.stock) && formData.stock !== '') {
+                                                                updateSubVariant(idx, optIdx, 'stock', '');
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            if (!opt.isUnlimited && e.target.value === '' && formData.stock !== '') {
+                                                                updateSubVariant(idx, optIdx, 'stock', formData.stock);
+                                                            }
+                                                        }}
+                                                    />
+                                                    {errors[`variant-${idx}-${optIdx}-stock`] && <p className="text-red-500 text-[10px] mt-1 leading-tight">{errors[`variant-${idx}-${optIdx}-stock`]}</p>}
+                                                    </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            );
+                                        })}
+                                        
+                                        <div className="pt-2">
+                                            <button 
+                                                type="button" 
+                                                onClick={() => addSubVariant(idx)}
+                                                className="text-xs font-bold text-white bg-[#8A63D2] hover:bg-[#7854bc] px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
+                                            >
+                                                <Plus size={14} /> Add Option
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -550,7 +866,7 @@ export default function AddProductDialog({ isOpen, onClose, onProductAdded, cate
                             onChange={handleChange}
                             rows={3}
                             placeholder="Product details..."
-                            className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:ring-brand-500 resize-none transition-all"
+                            className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:ring-1 focus:border-[#8A63D2] focus:ring-1 focus:ring-[#8A63D2] resize-none transition-all"
                         />
                     </div>
                 </div>
