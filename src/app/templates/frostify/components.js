@@ -58,9 +58,10 @@ export const Header = () => {
 
     const resolveLink = (url) => {
         if (url === undefined || url === null) return "#";
-        if (url.startsWith('#') || url.startsWith('http')) return url;
-        const path = url.replace('/templates/frostify', '');
+        if (url.startsWith('http')) return url;
         const cleanBasePath = basePath && basePath !== '.' ? basePath : '';
+        if (url.startsWith('#')) return `${cleanBasePath}/${url}`;
+        const path = url.replace('/templates/frostify', '');
         return `${cleanBasePath}${path}` || '/';
     };
 

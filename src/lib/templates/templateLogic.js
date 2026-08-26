@@ -9,15 +9,6 @@ export const getLandingItems = (businessData, requiredCount = 3) => {
     const settings = businessData.landing_settings || { mode: 'auto', manualItems: [], prioritizedProducts: [] };
     const allProducts = businessData.allProducts || [];
     const allCategories = businessData.categories || [];
-    const totalItems = allProducts.length + allCategories.length;
-
-    // 0. SMALL CATALOG CHECK
-    if (totalItems <= requiredCount) {
-         let everything = [];
-         allCategories.forEach(c => everything.push({ ...c, type: 'category', image: c.image || null }));
-         allProducts.forEach(p => everything.push({ ...p, type: 'product', image: p.image || p.image_url }));
-         return everything.slice(0, requiredCount);
-    }
 
     // MANUAL MODE
     if (settings.mode === 'manual') {
@@ -32,95 +23,68 @@ export const getLandingItems = (businessData, requiredCount = 3) => {
         }).filter(Boolean);
     }
 
-    // AUTO MODE
+    // AUTO MODE — Solid architecture:
+    // Priority: Pinned products → In-stock products (diverse categories) → Categories → fill
+    // Rule: ALWAYS show products if any exist. Never let categories consume all slots.
+    // Rule: Exclude OOS products when in-stock alternatives are available.
+    
     let finalItems = [];
     const usedImages = new Set(); 
+    const usedProductIds = new Set();
+    const usedCategoryIds = new Set();
     const prioritizedIds = (settings.prioritizedProducts || []).map(String);
-    const usedProductIds = new Set(); 
 
-    // Helper: Is this image used?
-    const isImageUsed = (url) => {
-        if (!url) return false;
-        return usedImages.has(url);
-    };
+    const isImageUsed = (url) => url ? usedImages.has(url) : false;
 
-    // Helper: Predict if a product is "High Value" (likely to be selected)
-    // We check if it's Pinned OR in the Top N sales (where N is fairly small, e.g., 5)
-    // This helps Categories "yield" their image if the product itself is important.
-    const isHighValueProduct = (prod) => {
-        if (!prod) return false;
-        if (prioritizedIds.includes(String(prod.id))) return true;
-        // Top 5 sellers
-        const topSellers = [...allProducts]
-            .sort((a, b) => (b.sales || 0) - (a.sales || 0))
-            .slice(0, 5)
-            .map(p => String(p.id));
-        return topSellers.includes(String(prod.id));
-    };
-
-    const addItem = (item, type, isOOS = false) => {
+    const addProductItem = (p) => {
         if (finalItems.length >= requiredCount) return false;
-        if (finalItems.find(x => x.type === type && String(x.id) === String(item.id))) return false;
-
-        let displayImage = item.image || item.image_url;
-        let actualProductId = null; 
-
-        if (type === 'category') {
-             // 1. Identify the product that provides this image
-             const catProducts = allProducts.filter(p => String(p.category) === String(item.id));
-             const top = catProducts.sort((a, b) => (b.sales || 0) - (a.sales || 0))[0];
-             
-             // 2. Should we force a switch?
-             // Yes if: Image is already used OR Top Product is "High Value" (reserve it for standalone)
-             let forceSwitch = false;
-             if (isImageUsed(displayImage)) forceSwitch = true;
-             if (top && isHighValueProduct(top)) forceSwitch = true;
-
-             if (forceSwitch) {
-                 // Find NEXT best product
-                 const nextBest = catProducts
-                    .filter(p => {
-                        // Exclude the top one if we are forcing switch due to High Value
-                        if (top && String(p.id) === String(top.id)) return false;
-                        // Exclude if image used
-                        const img = p.image || p.image_url;
-                        return img && !isImageUsed(img);
-                    })
-                    .sort((a, b) => (b.sales || 0) - (a.sales || 0))
-                    .find(p => true); // First remaining
-                 
-                 if (nextBest) {
-                     displayImage = nextBest.image || nextBest.image_url;
-                     actualProductId = nextBest.id;
-                 } else {
-                     // No alternative.
-                     // If purely duplicate check failed, we might allow it.
-                     // If high value check failed, we allow duplication rather than empty category.
-                     if (top) {
-                         displayImage = top.image || top.image_url;
-                         actualProductId = top.id;
-                     }
-                 }
-             } else {
-                 if (top) actualProductId = top.id;
-             }
-        } else {
-             // Product
-             if (isImageUsed(displayImage)) return false; 
-             actualProductId = item.id;
-        }
-
-        if (displayImage) usedImages.add(displayImage);
-        if (actualProductId) usedProductIds.add(String(actualProductId));
+        if (usedProductIds.has(String(p.id))) return false;
+        const img = p.image || p.image_url;
+        if (img && isImageUsed(img)) return false;
         
-        finalItems.push({ ...item, type, isOOS, image: displayImage });
+        if (img) usedImages.add(img);
+        usedProductIds.add(String(p.id));
+        finalItems.push({ ...p, type: 'product', image: img });
         return true;
     };
 
-    // 1. Prioritized Products (Pinned)
+    const addCategoryItem = (cat) => {
+        if (finalItems.length >= requiredCount) return false;
+        if (usedCategoryIds.has(String(cat.id))) return false;
+        
+        // Find a representative image from products in this category
+        const catProducts = allProducts.filter(p => String(p.category) === String(cat.id));
+        let displayImage = cat.image;
+        
+        if (!displayImage || isImageUsed(displayImage)) {
+            // Find a product image that isn't used and isn't a high-value product
+            const altProduct = catProducts
+                .filter(p => {
+                    const img = p.image || p.image_url;
+                    return img && !isImageUsed(img) && !usedProductIds.has(String(p.id));
+                })
+                .sort((a, b) => (b.sales || 0) - (a.sales || 0))[0];
+            
+            if (altProduct) {
+                displayImage = altProduct.image || altProduct.image_url;
+            }
+        }
+        
+        if (displayImage) usedImages.add(displayImage);
+        usedCategoryIds.add(String(cat.id));
+        finalItems.push({ ...cat, type: 'category', image: displayImage });
+        return true;
+    };
+
+    // Separate in-stock and OOS products
+    const inStockProducts = allProducts.filter(p => p.stock === -1 || p.stock > 0);
+    const hasInStockProducts = inStockProducts.length > 0;
+
+    // === STEP 1: Pinned products (in-stock only) ===
     const pinnedItems = prioritizedIds
         .map(id => allProducts.find(p => String(p.id) === id))
         .filter(Boolean)
+        .filter(p => p.stock === -1 || p.stock > 0)
         .sort((a, b) => {
             const imgA = a.image || a.image_url;
             const imgB = b.image || b.image_url;
@@ -128,18 +92,60 @@ export const getLandingItems = (businessData, requiredCount = 3) => {
             return (b.sales || 0) - (a.sales || 0);
         });
     
-    // EXCLUDE OOS FROM LANDING unless no other option?
-    // User requirement: "in home no need to show out of stock products"
-    // So filtering pinned items if they are OOS
-    pinnedItems.forEach(p => {
-        if (p.stock === -1 || p.stock > 0) {
-            addItem(p, 'product');
+    for (const p of pinnedItems) {
+        addProductItem(p);
+        if (finalItems.length >= requiredCount) return finalItems;
+    }
+
+    // === STEP 2: Smart product selection — diverse across categories ===
+    // Pick one top product from each category (round-robin) to ensure variety
+    if (hasInStockProducts) {
+        const categorizedProducts = {};
+        for (const p of inStockProducts) {
+            if (usedProductIds.has(String(p.id))) continue;
+            const catId = String(p.category || 'uncategorized');
+            if (!categorizedProducts[catId]) categorizedProducts[catId] = [];
+            categorizedProducts[catId].push(p);
         }
-    });
+        
+        // Sort each category's products by sales (best first)
+        for (const catId of Object.keys(categorizedProducts)) {
+            categorizedProducts[catId].sort((a, b) => {
+                const imgA = a.image || a.image_url;
+                const imgB = b.image || b.image_url;
+                if (!!imgA !== !!imgB) return !!imgB - !!imgA;
+                return (b.sales || 0) - (a.sales || 0);
+            });
+        }
+
+        // Round-robin pick from each category
+        const catIds = Object.keys(categorizedProducts).sort((a, b) => {
+            // Sort categories by their top product's sales
+            const topA = categorizedProducts[a][0];
+            const topB = categorizedProducts[b][0];
+            return (topB?.sales || 0) - (topA?.sales || 0);
+        });
+
+        let round = 0;
+        let added = true;
+        while (finalItems.length < requiredCount && added) {
+            added = false;
+            for (const catId of catIds) {
+                if (finalItems.length >= requiredCount) break;
+                const products = categorizedProducts[catId];
+                if (round < products.length) {
+                    if (addProductItem(products[round])) {
+                        added = true;
+                    }
+                }
+            }
+            round++;
+        }
+    }
 
     if (finalItems.length >= requiredCount) return finalItems;
 
-    // 2. Top Categories
+    // === STEP 3: Fill remaining with categories (if products don't fill all slots) ===
     const sortedCats = [...allCategories].sort((a, b) => {
         if (!!a.image !== !!b.image) return !!b.image - !!a.image;
         return (b.sales || 0) - (a.sales || 0);
@@ -147,44 +153,20 @@ export const getLandingItems = (businessData, requiredCount = 3) => {
 
     for (const cat of sortedCats) {
         if (finalItems.length >= requiredCount) break;
-        addItem(cat, 'category');
+        addCategoryItem(cat);
     }
 
-    if (finalItems.length >= requiredCount) return finalItems;
-
-    // 3. Top Products (Smart Fill)
-    const availableProducts = [...allProducts]
-         .filter(p => (p.stock === -1 || p.stock > 0)) 
-         .filter(p => !prioritizedIds.includes(String(p.id))) 
-         .filter(p => !usedProductIds.has(String(p.id))) // Skip products used on covers
-         .sort((a, b) => {
-            const imgA = a.image || a.image_url;
-            const imgB = b.image || b.image_url;
-            if (!!imgA !== !!imgB) return !!imgB - !!imgA;
-            return (b.sales || 0) - (a.sales || 0);
-         });
-    
-    for (const p of availableProducts) {
-         if (finalItems.length >= requiredCount) break;
-         addItem(p, 'product');
-    }
-
-    // 4. Fallback OOS
-    // REMOVED per user request: "dont show out of stock" on home
-    /*
+    // === STEP 4: If still short, add remaining in-stock products ===
     if (finalItems.length < requiredCount) {
-         const oosProducts = allProducts
-            .filter(p => p.stock !== -1 && p.stock <= 0)
-            .filter(p => !prioritizedIds.includes(String(p.id)))
+        const remaining = inStockProducts
             .filter(p => !usedProductIds.has(String(p.id)))
             .sort((a, b) => (b.sales || 0) - (a.sales || 0));
-
-         for (const p of oosProducts) {
-             if (finalItems.length >= requiredCount) break;
-             addItem(p, 'product', true);
-         }
+        
+        for (const p of remaining) {
+            if (finalItems.length >= requiredCount) break;
+            addProductItem(p);
+        }
     }
-    */
 
     return finalItems.slice(0, requiredCount);
 };

@@ -11,9 +11,19 @@ import AnalyticsTracker from '@/components/dashboard/analytics/AnalyticsTracker'
 import WhatsAppButton from '@/components/WhatsAppButton';
 import OfferPopup from '@/components/editor/OfferPopup';
 import { getBasePath } from '@/app/templates/getBasePath';
+import { replaceTemplateName } from '@/lib/templates/replaceTemplateName';
 
 function FlavorNestLayout({ children, serverData, websiteId }) { // 1. Accept serverData
-    const [businessData, setBusinessData] = useState(serverData || initialBusinessData); // 2. Use serverData
+    // Apply business name replacement on init
+    const initialData = (() => {
+        const data = serverData || initialBusinessData;
+        const businessName = data.name || data.logoText;
+        if (businessName && serverData) {
+            return replaceTemplateName(data, 'flavornest', businessName);
+        }
+        return data;
+    })();
+    const [businessData, setBusinessData] = useState(initialData); // 2. Use serverData
     const router = useRouter();
     const pathname = usePathname();
 
@@ -97,18 +107,7 @@ function FlavorNestLayout({ children, serverData, websiteId }) { // 1. Accept se
         
         } else if (isLiveSite) {
             // --- 3. We are on the LIVE site ---
-            const storedStoreName = localStorage.getItem('storeName');
-            if (storedStoreName) {
-                setBusinessData(prevData => ({
-                    ...prevData,
-                    name: storedStoreName,
-                    logoText: storedStoreName,
-                    footer: {
-                        ...prevData.footer,
-                        copyright: `©️ ${new Date().getFullYear()} ${storedStoreName}. All Rights Reserved`
-                    }
-                }));
-            }
+            // Business name replacement is handled at init via replaceTemplateName
         }
         // --- END OF NEW LOGIC ---
 

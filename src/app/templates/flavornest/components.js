@@ -9,9 +9,10 @@ export const Header = ({ business, cartCount, onCartClick }) => {
 
     const resolveLink = (url) => {
         if (url === undefined || url === null) return "#";
-        if (url.startsWith('#') || url.startsWith('http')) return url;
-        const path = url.replace('/templates/flavornest', '');
+        if (url.startsWith('http')) return url;
         const cleanBasePath = basePath && basePath !== '.' ? basePath : '';
+        if (url.startsWith('#')) return `${cleanBasePath}/${url}`;
+        const path = url.replace('/templates/flavornest', '');
         return `${cleanBasePath}${path}` || '/';
     };
 

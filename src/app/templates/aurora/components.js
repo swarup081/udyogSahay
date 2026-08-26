@@ -34,9 +34,10 @@ const HeaderContent = () => {
 
     const resolveLink = (url) => {
         if (url === undefined || url === null) return "#";
-        if (url.startsWith('#') || url.startsWith('http')) return url;
-        const path = url.replace('/templates/aurora', '');
+        if (url.startsWith('http')) return url;
         const cleanBasePath = basePath && basePath !== '.' ? basePath : '';
+        if (url.startsWith('#')) return `${cleanBasePath}/${url}`;
+        const path = url.replace('/templates/aurora', '');
         return `${cleanBasePath}${path}` || '/';
     };
 
@@ -349,9 +350,10 @@ export const Footer = () => {
 
     const resolveLink = (url) => {
         if (url === undefined || url === null) return "#";
-        if (url.startsWith('#') || url.startsWith('http')) return url;
-        const path = url.replace('/templates/aurora', '');
+        if (url.startsWith('http')) return url;
         const cleanBasePath = basePath && basePath !== '.' ? basePath : '';
+        if (url.startsWith('#')) return `${cleanBasePath}/${url}`;
+        const path = url.replace('/templates/aurora', '');
         return `${cleanBasePath}${path}` || '/';
     };
 

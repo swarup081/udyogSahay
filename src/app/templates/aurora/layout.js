@@ -13,6 +13,7 @@ import { colorPalettes } from '@/components/editor/EditorSidebar';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import OfferPopup from '@/components/editor/OfferPopup';
 import { getBasePath } from '@/app/templates/getBasePath';
+import { replaceTemplateName } from '@/lib/templates/replaceTemplateName';
 
 const fontMap = {
     'Poppins': { url: 'family=Poppins:wght@300;400;500;600;700', family: "'Poppins', sans-serif" },
@@ -46,7 +47,15 @@ export default function AuroraLayout({ children, serverData, websiteId }) {
 
 // Wrapper to Provide State & Context
 function AuroraStateProvider({ children, serverData, websiteId }) {
-    const [businessData, setBusinessData] = useState(serverData || initialBusinessData); 
+    const initialData = (() => {
+        const data = serverData || initialBusinessData;
+        const businessName = data.name || data.logoText;
+        if (businessName && serverData) {
+            return replaceTemplateName(data, 'aurora', businessName);
+        }
+        return data;
+    })();
+    const [businessData, setBusinessData] = useState(initialData); 
 
     const pathname = usePathname();
     const basePath = getBasePath('aurora', serverData, pathname);

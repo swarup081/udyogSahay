@@ -59,9 +59,10 @@ export const Header = ({ business, cartCount, onCartClick }) => {
 
     const resolveLink = (url) => {
         if (url === undefined || url === null) return "#";
-        if (url.startsWith('#') || url.startsWith('http')) return url;
-        const path = url.replace('/templates/blissly', '');
+        if (url.startsWith('http')) return url;
         const cleanBasePath = basePath && basePath !== '.' ? basePath : '';
+        if (url.startsWith('#')) return `${cleanBasePath}/${url}`;
+        const path = url.replace('/templates/blissly', '');
         return `${cleanBasePath}${path}` || '/';
     };
 
@@ -189,9 +190,10 @@ export const Footer = () => {
 
     const resolveLink = (url) => {
         if (url === undefined || url === null) return "#";
-        if (url.startsWith('#') || url.startsWith('http')) return url;
-        const path = url.replace('/templates/blissly', '');
+        if (url.startsWith('http')) return url;
         const cleanBasePath = basePath && basePath !== '.' ? basePath : '';
+        if (url.startsWith('#')) return `${cleanBasePath}/${url}`;
+        const path = url.replace('/templates/blissly', '');
         return `${cleanBasePath}${path}` || '/';
     };
 

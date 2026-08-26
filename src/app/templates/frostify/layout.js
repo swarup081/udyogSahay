@@ -13,6 +13,7 @@ import { colorPalettes } from '@/components/editor/EditorSidebar';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import OfferPopup from '@/components/editor/OfferPopup';
 import { getBasePath } from '@/app/templates/getBasePath';
+import { replaceTemplateName } from '@/lib/templates/replaceTemplateName';
 
 function CartLayout({ children, serverData, websiteId }) {
     const [businessData, setBusinessData] = useState(serverData || initialBusinessData);
@@ -150,7 +151,15 @@ export default function FrostifyLayout({ children, serverData, websiteId }) {
 
 // Wrapper to Provide State & Context
 function FrostifyStateProvider({ children, serverData, websiteId }) {
-    const [businessData, setBusinessData] = useState(serverData || initialBusinessData); 
+    const initialData = (() => {
+        const data = serverData || initialBusinessData;
+        const businessName = data.name || data.logoText;
+        if (businessName && serverData) {
+            return replaceTemplateName(data, 'frostify', businessName);
+        }
+        return data;
+    })();
+    const [businessData, setBusinessData] = useState(initialData); 
 
     const pathname = usePathname();
     const basePath = getBasePath('frostify', serverData, pathname);

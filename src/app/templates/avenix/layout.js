@@ -11,6 +11,7 @@ import AnalyticsTracker from '@/components/dashboard/analytics/AnalyticsTracker'
 import WhatsAppButton from '@/components/WhatsAppButton';
 import OfferPopup from '@/components/editor/OfferPopup';
 import { getBasePath } from '@/app/templates/getBasePath';
+import { replaceTemplateName } from '@/lib/templates/replaceTemplateName';
 
 function AvenixContent({ children }) {
     const { businessData, websiteId , basePath } = useContext(TemplateContext);
@@ -99,11 +100,11 @@ function AvenixContent({ children }) {
                                 <div className="flex-grow py-6 space-y-6 overflow-y-auto">
                                     {cartDetails.map(item => (
                                         <div key={item.id} className="flex items-center gap-4">
-                                            <a href={`/templates/avenix/product/${item.id}`} className="block w-20 h-24 bg-brand-primary rounded-lg overflow-hidden">
+                                            <a href={`${basePath}/product/${item.id}`} className="block w-20 h-24 bg-brand-primary rounded-lg overflow-hidden">
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                             </a>
                                             <div className="flex-grow">
-                                                <a href={`/templates/avenix/product/${item.id}`} className="font-sans font-medium tracking-wider uppercase text-brand-text hover:opacity-70">{item.name}</a>
+                                                <a href={`${basePath}/product/${item.id}`} className="font-sans font-medium tracking-wider uppercase text-brand-text hover:opacity-70">{item.name}</a>
                                                 <p className="text-sm text-brand-text/60 mt-1">₹{item.price.toFixed(2)}</p>
                                                 <div className="flex items-center border border-brand-text/20 w-fit mt-2 rounded-full">
                                                     <button onClick={() => decreaseQuantity(item.id)} className="w-8 h-8 text-lg text-brand-text/70 hover:bg-brand-primary rounded-l-full">-</button>
@@ -155,7 +156,17 @@ function AvenixContent({ children }) {
 
 // Wrapper to Provide State & Context
 function AvenixStateProvider({ children, serverData, websiteId }) {
-    const [businessData, setBusinessData] = useState(serverData || initialBusinessData); 
+    // Apply business name replacement: if serverData has a custom name, replace all
+    // default template names ('Avenix') with the user's business name throughout
+    const initialData = (() => {
+        const data = serverData || initialBusinessData;
+        const businessName = data.name || data.logoText;
+        if (businessName && serverData) {
+            return replaceTemplateName(data, 'avenix', businessName);
+        }
+        return data;
+    })();
+    const [businessData, setBusinessData] = useState(initialData); 
 
     const pathname = usePathname();
     const basePath = getBasePath('avenix', serverData, pathname);

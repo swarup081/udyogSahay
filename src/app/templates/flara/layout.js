@@ -10,6 +10,7 @@ import AnalyticsTracker from '@/components/dashboard/analytics/AnalyticsTracker'
 import WhatsAppButton from '@/components/WhatsAppButton';
 import OfferPopup from '@/components/editor/OfferPopup';
 import { getBasePath } from '@/app/templates/getBasePath';
+import { replaceTemplateName } from '@/lib/templates/replaceTemplateName';
 
 function FlaraContent({ children }) {
     const { businessData, basePath, websiteId } = useContext(TemplateContext);
@@ -158,7 +159,15 @@ function FlaraContent({ children }) {
 // This component manages the state and Provides the TemplateContext.
 // CartProvider is INSIDE this provider.
 function TemplateStateProvider({ children, serverData, websiteId }) {
-    const [businessData, setBusinessData] = useState(serverData || initialBusinessData); 
+    const initialData = (() => {
+        const data = serverData || initialBusinessData;
+        const businessName = data.name || data.logoText;
+        if (businessName && serverData) {
+            return replaceTemplateName(data, 'flara', businessName);
+        }
+        return data;
+    })();
+    const [businessData, setBusinessData] = useState(initialData); 
     const router = useRouter();
     const pathname = usePathname();
 

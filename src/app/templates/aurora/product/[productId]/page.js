@@ -9,6 +9,7 @@ import { ProductCard } from '../../components.js';
 import { fetchSuggestedProducts } from '@/app/actions/recommendations';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { HeroAnimation, ScrollSection, StaggerGrid, StaggerItem } from '@/components/ui/TemplateAnimation';
+import TrustBadges from '@/components/ui/TrustBadges';
 
 export default function ProductPage() {
     const { productId } = useParams();
@@ -238,6 +239,8 @@ export default function ProductPage() {
                                 {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
                             </button>
                         </div>
+
+                        <TrustBadges />
 
                         {/* Description - Bottom */}
                         {product.description && (

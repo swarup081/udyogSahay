@@ -11,9 +11,19 @@ import AnalyticsTracker from '@/components/dashboard/analytics/AnalyticsTracker'
 import WhatsAppButton from '@/components/WhatsAppButton';
 import OfferPopup from '@/components/editor/OfferPopup';
 import { getBasePath } from '@/app/templates/getBasePath';
+import { replaceTemplateName } from '@/lib/templates/replaceTemplateName';
 
 function CartLayout({ children, serverData, websiteId }) { // 1. Accept serverData
-    const [businessData, setBusinessData] = useState(serverData || initialBusinessData); // 2. Use serverData
+    // Apply business name replacement on init
+    const initialData = (() => {
+        const data = serverData || initialBusinessData;
+        const businessName = data.name || data.logoText;
+        if (businessName && serverData) {
+            return replaceTemplateName(data, 'blissly', businessName);
+        }
+        return data;
+    })();
+    const [businessData, setBusinessData] = useState(initialData); // 2. Use serverData
     const router = useRouter();
     const pathname = usePathname();
 
@@ -97,18 +107,7 @@ function CartLayout({ children, serverData, websiteId }) { // 1. Accept serverDa
         
         } else if (isLiveSite) {
             // --- 3. We are on the LIVE site ---
-            const storedStoreName = localStorage.getItem('storeName');
-            if (storedStoreName) {
-                setBusinessData(prevData => ({
-                    ...prevData,
-                    name: storedStoreName,
-                    logoText: storedStoreName,
-                    footer: {
-                        ...prevData.footer,
-                        copyright: `© ${new Date().getFullYear()} ${storedStoreName}. All RightsReserved.`
-                    }
-                }));
-            }
+            // Business name replacement is handled at init via replaceTemplateName
         }
         // --- END OF NEW LOGIC ---
 
@@ -178,11 +177,11 @@ function CartLayout({ children, serverData, websiteId }) { // 1. Accept serverDa
                                     <div className="flex-grow py-6 space-y-6 overflow-y-auto">
                                         {cartDetails.map(item => (
                                             <div key={item.id} className="flex items-center gap-4">
-                                                <a href={`/templates/blissly/product/${item.id}`} className="block w-20 h-24 bg-brand-primary rounded-lg overflow-hidden">
+                                                <a href={`${basePath}/product/${item.id}`} className="block w-20 h-24 bg-brand-primary rounded-lg overflow-hidden">
                                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                                 </a>
                                                 <div className="flex-grow">
-                                                    <a href={`/templates/blissly/product/${item.id}`} className="font-serif font-bold text-lg text-brand-text hover:text-brand-secondary">{item.name}</a>
+                                                    <a href={`${basePath}/product/${item.id}`} className="font-serif font-bold text-lg text-brand-text hover:text-brand-secondary">{item.name}</a>
                                                     <p className="text-sm text-brand-text/60 mt-1">₹{item.price.toFixed(2)}</p>
                                                     <div className="flex items-center border border-brand-text/20 w-fit mt-2 rounded-md">
                                                         <button onClick={() => decreaseQuantity(item.id)} className="w-8 h-8 text-lg text-brand-text/70 hover:bg-brand-primary rounded-l-md">-</button>
@@ -387,11 +386,11 @@ function BlisslyContent({ children }) {
                                 <div className="flex-grow py-6 space-y-6 overflow-y-auto">
                                     {cartDetails.map(item => (
                                         <div key={item.id} className="flex items-center gap-4">
-                                            <a href={`/templates/blissly/product/${item.id}`} className="block w-20 h-24 bg-brand-primary rounded-lg overflow-hidden">
+                                            <a href={`${basePath}/product/${item.id}`} className="block w-20 h-24 bg-brand-primary rounded-lg overflow-hidden">
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                             </a>
                                             <div className="flex-grow">
-                                                <a href={`/templates/blissly/product/${item.id}`} className="font-serif font-bold text-lg text-brand-text hover:text-brand-secondary">{item.name}</a>
+                                                <a href={`${basePath}/product/${item.id}`} className="font-serif font-bold text-lg text-brand-text hover:text-brand-secondary">{item.name}</a>
                                                 <p className="text-sm text-brand-text/60 mt-1">₹{item.price.toFixed(2)}</p>
                                                 <div className="flex items-center border border-brand-text/20 w-fit mt-2 rounded-md">
                                                     <button onClick={() => decreaseQuantity(item.id)} className="w-8 h-8 text-lg text-brand-text/70 hover:bg-brand-primary rounded-l-md">-</button>

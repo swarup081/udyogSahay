@@ -47,9 +47,10 @@ export const Header = ({ business, cartCount, onCartClick }) => {
     // Helper to resolve links with basePath
     const resolveLink = (url) => {
         if (url === undefined || url === null) return "#";
-        if (url.startsWith('#') || url.startsWith('http')) return url;
-        const path = url.replace('/templates/flara', '');
+        if (url.startsWith('http')) return url;
         const cleanBasePath = basePath && basePath !== '.' ? basePath : '';
+        if (url.startsWith('#')) return `${cleanBasePath}/${url}`;
+        const path = url.replace('/templates/flara', '');
         return `${cleanBasePath}${path}` || '/';
     };
 
@@ -167,9 +168,10 @@ export const Footer = () => {
 
     const resolveLink = (url) => {
         if (url === undefined || url === null) return "#";
-        if (url.startsWith('#') || url.startsWith('http')) return url;
-        const path = url.replace('/templates/flara', '');
+        if (url.startsWith('http')) return url;
         const cleanBasePath = basePath && basePath !== '.' ? basePath : '';
+        if (url.startsWith('#')) return `${cleanBasePath}/${url}`;
+        const path = url.replace('/templates/flara', '');
         return `${cleanBasePath}${path}` || '/';
     };
 
